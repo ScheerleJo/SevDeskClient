@@ -1,0 +1,290 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: #0f0f0f;
+  background-color: #f6f6f6;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 10px;
+  min-width: 570px;
+}
+.container {
+  margin: 0;
+  padding: 1vh 7vh 0 7vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* text-align: center; */
+}
+.inline {
+  display: inline-block;
+}
+
+a:link, a:visited {
+  color: rgb(255, 255, 255); /*! Change when Styling*/
+}
+
+/* .logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: 0.75s;
+}
+
+.logo.tauri:hover {
+  filter: drop-shadow(0 0 2em #24c8db);
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #535bf2;
+} */
+.head {
+  padding: 0;
+}
+.nav-list {
+  float: left;
+  list-style: none;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+.nav-item {
+  display: inline-block;
+  margin: 10px;
+}
+
+#nav-help {
+  position: absolute;
+  right: 30px;
+}
+
+nav ul li a {
+  padding: 10px 10px;
+  font-size: large;
+  display: block;
+  text-decoration: none;
+}
+nav .dropdown-list li a i {
+  width: 25px;
+}
+nav .dropdown-list li {
+  width: 100%;
+  text-align: left;
+  display: block;
+  
+}
+nav .dropdown-list {
+  border-top: 1px solid black;
+  display: none;
+  position: absolute;
+  list-style: none;
+  background: #353535;  /*! Change when styling*/
+  padding: 5px;
+  border-radius: 0px 0px 5px 5px;
+  z-index: 1;
+  width: auto;
+}
+.dropdown-list li a {
+  display: block;
+  width: auto;
+}
+nav ul li:hover ul {
+  display: block;
+}
+
+
+nav a:hover {
+  background: rgba(200, 200, 200, .8);
+}
+nav a:active {
+  background:rgba(220, 220, 220, .8);
+}
+
+#input-year {
+  width:20vh;
+}
+
+
+h1 {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 15px;
+}
+footer p {
+  margin: 0 auto 0 auto;
+  font-size: 10px;
+}
+footer p a {
+  display: inline;
+}
+
+#link-mail:link, #link-mail:visited {
+  color: #C70003;
+}
+
+footer {
+  width: 95%;
+  position: absolute;
+  bottom: 0;
+}
+
+input,
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  color: #0f0f0f;
+  background-color: #ffffff;
+  transition: border-color 0.25s;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: #C70003;
+}
+button:active {
+  border-color: #C70003;
+  background-color: #e8e8e8;
+}
+
+
+#greet-input {
+  margin-right: 5px;
+}
+
+
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f6f6f6;
+    background-color: #2f2f2f;
+  }
+
+  a:hover {
+    /* color: #; */
+  }
+
+  input,
+  button {
+    color: #ffffff;
+    background-color: #0f0f0f98;
+  }
+  button:active {
+    background-color: #0f0f0f69;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+a {
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  display: block;
+}
+
+
+
+#open-jobs a {
+  color: rgb(255, 255, 255)
+}
+#check-jobs a {
+  color: rgb(240, 124, 0);
+}
+#successful-jobs a {
+  color: rgb(0, 172, 0);
+}
+
+.job-nr {
+  color: rgb(150, 150, 150)
+}
+
+#overview-table {
+  align-content: center;
+  border-collapse: separate;
+  margin: 25px auto;
+  min-width: 500px;
+  width: 70%;
+  max-width: 90%;
+  overflow:hidden;
+  box-shadow: 0 0 20px rgba(20, 20, 20, .3);
+  border-spacing: 0;
+}
+
+#overview-table caption {
+  margin-bottom: 5px;
+  font-size: 18px;
+  text-align: center;
+  font-weight: 500;
+}
+
+#overview-table thead tr{
+  background:rgb(58, 58, 58);   /*! Change when Styling */
+  text-align: left;
+}
+
+#overview-table td {
+  padding: 12px 15px;
+  width: 33.3%;
+}
+#overview-table tbody td:hover {
+  background-color: rgb(100, 100, 100);
+}
+
+#overview-table td {
+  border-bottom: thin solid rgb(100, 100, 100);
+}
+#overview-table tbody tr {
+  background: rgb(58, 58, 58);
+}
+
+#overview-table #double-row {
+  background:rgb(220, 220, 220);
+  border-left: thin solid rgb(100, 100, 100)
+} 

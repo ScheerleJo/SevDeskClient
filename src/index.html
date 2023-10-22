@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="/main.js" defer></script>
+    <script src="https://kit.fontawesome.com/97ecc9f9f9.js" crossorigin="anonymous"></script>
+    <title>SevDesk - Generierte Spendenbescheinigungen</title>
+</head>
+<body>
+    <div class="container head">
+        <nav class="navbar" id="head">
+            <ul class="nav-list">
+                <li class="nav-item"><a href=""><i class="fa-solid fa-house"></i></a></li>
+                <li class="nav-item">
+                    <a href=""><i class="fa-solid fa-bars"></i></a>
+                    <ul class="dropdown-list">
+                        <li><a href="#"><i class="fa-solid fa-key"></i> Authorisierungs-Token</a></li>
+                        <li><a href="#"><i class="fa-solid fa-network-wired"></i> Server-verbindung</a></li>
+                        <li><a href="#"><i id="server-status" class="fa-solid fa-power-off"></i> Server starten/stoppen</a></li>
+                        <li><a href="#"><i class="fa-solid fa-file"></i> Standard .tex Vorlage</a></li>
+                    </ul>            
+                </li>
+                <li class="nav-item" id="nav-help"><a href="">Hilfe <i class="fa-solid fa-question"></i></a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="container">
+        <h1>Start</h1>
+        <p>Willkommen bei der automatsierten Erstellung von Spendenbescheinigungen der Theologischen Fernschule e.V.</p>
+
+        <div>
+            <p class="inline">Jahr auswählen:</p>
+            <input class="inline" type="number" name="year" id="input-year" value="2023" placeholder="Jahr eingeben">
+            <button>Daten von SevDesk holen</button>
+        </div>
+        <table id="overview-table">
+            <tr>
+                <td class="job-nr" id="open-jobs"><center><a href="#"><center>Offen</center>0</a></center></td>
+                <td class="job-nr" id="check-jobs"><center><a href="#"><center>Prüfen</center>0</a></center></td>
+                <td class="job-nr" id="successful-jobs"><center><a href="#"><center>Abgeschlossen</center>0</a></center></td>
+            </tr>
+        </table>
+
+        <ul>
+            <li>"Offen" sind dabei alle angelegten Spender aus SevDesk, die von dort importiert wurden, aber deren Bescheinigung noch nicht angestoßen wurde.</li>
+            <li>"Prüfen" sind alle Spender, deren Bescheinigungen automatisch erstellt wurden. Diese müssen vor dem Absenden zunächst auf ihre Richtigkeit geprüft werden.</li>
+            <li>"Abgeschlossen" sind alle Spender, deren Bescheinigungen bereits geprüft und abgeschickt sind.</li>
+        </ul>
+
+
+    </div>
+    
+    
+    <footer>
+        <p>Anwendung entwickelt von Josia Scheerle.</p>
+        <p>Bei Fragen oder Problemen <a id="link-mail" href="mailto:scheerle.josia@gmail.com">scheerle.josia@gmail.com</a>. oder Tel.: "Hier einfügen"</p>
+    </footer>
+</body>
+
+
+
+
+
+
+
+    
+<!-- 
+    <h1>Übersicht</h1> 
+    <p>Hier sehen Sie eine Übersicht über die aktuellen Jobs der Spendenbescheinigungs-Automatisierung.</p>
+    <ul>
+        <li>"Offen" sind dabei alle angelegten Spender aus SevDesk, die von dort importiert wurden, aber deren Bescheinigung noch nicht angestoßen wurde.</li>
+        <li>"Prüfen" sind alle Spender, deren Bescheinigungen automatisch erstellt wurden. Diese müssen vor dem Absenden zunächst auf ihre Richtigkeit geprüft werden.</li>
+        <li>"Abgeschlossen" sind alle Spender, deren Bescheinigungen bereits geprüft und abgeschickt sind.</li>
+    </ul>
+    <div>
+        <table id="overview-table">
+            <thead>
+                <tr>
+                    <th id="open-jobs"><center>Offen</center></th>
+                    <th id="check-jobs"><center>Prüfen</center></th>
+                    <th id="successful-jobs"><center>Abgeschlossen</center></th>
+                </tr>    
+            </thead>
+            <tr>
+                <td class="job-nr" id="open-jobs-nr"><center><a href="#">0</a></center></td>
+                <td class="job-nr" id="check-jobs-nr"><center><a href="#">0</a></center></td>
+                <td class="job-nr" id="successful-jobs-nr"><center><a href="#">0</a></center></td>
+            </tr>
+        </table>
+    </div> -->
+
+
+
+
+
+
+
+
+
+</body>
+</html>
