@@ -245,10 +245,9 @@ a {
   color: rgb(150, 150, 150)
 }
 
-#overview-table {
+table {
   align-content: center;
   border-collapse: separate;
-  margin: 25px auto;
   min-width: 500px;
   width: 70%;
   max-width: 90%;
@@ -256,15 +255,24 @@ a {
   box-shadow: 0 0 20px rgba(20, 20, 20, .3);
   border-spacing: 0;
 }
+#overview-table {
+  margin: 25px auto;
+}
+#donation-table {
+  align-content: left;
+  width: auto;
+  min-width: none;
 
-#overview-table caption {
+}
+/* 
+table caption {
   margin-bottom: 5px;
   font-size: 18px;
   text-align: center;
   font-weight: 500;
-}
+} */
 
-#overview-table thead tr{
+table thead tr{
   background:rgb(58, 58, 58);   /*! Change when Styling */
   text-align: left;
 }
@@ -277,14 +285,14 @@ a {
   background-color: rgb(100, 100, 100);
 }
 
-#overview-table td {
+table td {
   border-bottom: thin solid rgb(100, 100, 100);
 }
-#overview-table tbody tr {
+table tbody tr {
   background: rgb(58, 58, 58);
 }
 
-#overview-table #double-row {
+table #double-row {
   background:rgb(220, 220, 220);
   border-left: thin solid rgb(100, 100, 100)
 } 

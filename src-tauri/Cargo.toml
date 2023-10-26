@@ -1,10 +1,10 @@
 [package]
-name = "SevDeskDonationCerficates"
+name = "sev_desk_donation_cerficates"
 version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A windows-app style GUI to run and access the SevDesk-DonationsServer and manage automatically created Donation-Certificates."
+authors = ["Josia Scheerle"]
 license = ""
-repository = ""
+repository = "https://github.com/ScheerleJo/SevDeskDonationsGUI"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

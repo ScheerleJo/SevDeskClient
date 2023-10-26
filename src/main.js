@@ -21,3 +21,34 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 document.getElementById('input-your').value = new Date().toUTCString()
+
+
+function showTable(state) {
+  /*
+    State 0: click on Tab 'open'
+    State 1: click on Tab 'check'
+    State 0: click on Tab 'done'
+    Default: send alert with warning and display all Donations no matter what state
+
+  */
+  switch (state){
+    case 0:
+
+
+    break;
+    case 1:
+
+
+
+    break;
+    case 2:
+
+
+    break;
+    default:
+
+
+    break;
+  }
+}
+

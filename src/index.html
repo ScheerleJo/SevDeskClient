@@ -27,8 +27,9 @@
             </ul>
         </nav>
     </div>
-    <div class="container">
-        <h1>Start</h1>
+
+    <div id="start-container" class="container">
+        <h1 id>Start</h1>
         <p>Willkommen bei der automatsierten Erstellung von Spendenbescheinigungen der Theologischen Fernschule e.V.</p>
 
         <div>
@@ -49,10 +50,64 @@
             <li>"Prüfen" sind alle Spender, deren Bescheinigungen automatisch erstellt wurden. Diese müssen vor dem Absenden zunächst auf ihre Richtigkeit geprüft werden.</li>
             <li>"Abgeschlossen" sind alle Spender, deren Bescheinigungen bereits geprüft und abgeschickt sind.</li>
         </ul>
+    </div>
 
 
+
+    <div id="listing-container" class="container">
+        <h1 id="listing-header">Offen</h1>
+        <p>Hier sind alle Spender aufgelistet, die aus SevDesk importiert wurden und für die noch keine automatische Bescheinigung erstellt wurde.</p>
+        <div>
+            <input name="check-all" type="checkbox" id="check-all" class="inline">
+            <label for="check-all" class="inline">Alle Geprüft</label>
+        </div>
+        <table id="autocreate-table">
+            <thead>
+                <tr>
+                    <th>Erweitern</th>
+                    <th>Geprüft</th>
+
+                    <th>Kdnr</th>
+                    <th>Titel</th>
+                    <th>Vorname(n)</th>	
+                    <th>Nachname</th>
+                    <th>Straße & Hausnummer</th>
+                    <th>PLZ & Ort</th>
+
+                    <th>Gesamtsumme</th>
+                </tr>
+            </thead>
+            <tr id="donator-autocreate-tr">
+                <td><i id="caret-open" class="fa-solid fa-caret-down"></i><i id="caret-closed" class="fa-solid fa-caret-right"></i></td>
+                <td><input id="checkbox-done" type="checkbox"></td>
+                <td id="customer-number">1</td>
+                <td id="title">Dr.</td>
+                <td id="first-name">Max</td>
+                <td id="last-name">Mustermann</td>
+                <td id="street-number">Musterstraße 3</td>
+                <td id="postal-code-city">Musterhausen</td>
+                <td id="donation-sum">3.000 €</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="5">
+                    <table id="donation-table">
+                        <tr>
+                            <th>Datum</th>
+                            <th>Art</th>
+                            <th>Verzicht</th>
+                            <th>Betrag</th>
+                        </tr>
+                    </table>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
     </div>
     
+
+
     
     <footer>
         <p>Anwendung entwickelt von Josia Scheerle.</p>
