@@ -10,10 +10,11 @@
     <title>SevDesk - Generierte Spendenbescheinigungen</title>
 </head>
 <body>
+    <!--NAVBAR / HEAD-->
     <div class="container head">
         <nav class="navbar" id="head">
             <ul class="nav-list">
-                <li class="nav-item"><a href=""><i class="fa-solid fa-house"></i></a></li>
+                <li class="nav-item"><a href="#" onclick="setStartStatus()"><i class="fa-solid fa-house"></i></a></li>
                 <li class="nav-item">
                     <a href=""><i class="fa-solid fa-bars"></i></a>
                     <ul class="dropdown-list">
@@ -28,20 +29,21 @@
         </nav>
     </div>
 
+    <!--HOMEPAGE-->
     <div id="start-container" class="container">
         <h1 id>Start</h1>
         <p>Willkommen bei der automatsierten Erstellung von Spendenbescheinigungen der Theologischen Fernschule e.V.</p>
 
         <div>
             <p class="inline">Jahr auswählen:</p>
-            <input class="inline" type="number" name="year" id="input-year" value="2023" placeholder="Jahr eingeben">
-            <button>Daten von SevDesk holen</button>
+            <input class="inline" type="number" name="year" id="input-year" placeholder="Jahr eingeben">
+            <button onclick="">Daten von SevDesk holen</button>
         </div>
         <table id="overview-table">
             <tr>
-                <td class="job-nr" id="open-jobs"><center><a href="#"><center>Offen</center>0</a></center></td>
-                <td class="job-nr" id="check-jobs"><center><a href="#"><center>Prüfen</center>0</a></center></td>
-                <td class="job-nr" id="successful-jobs"><center><a href="#"><center>Abgeschlossen</center>0</a></center></td>
+                <td class="job-nr" id="open-jobs"><center><a href="#" onclick="setListingStatus(0)"><center>Offen</center>0</a></center></td>
+                <td class="job-nr" id="check-jobs"><center><a href="#" onclick="setListingStatus(1)"><center>Prüfen</center>0</a></center></td>
+                <td class="job-nr" id="successful-jobs"><center><a href="#" onclick="setListingStatus(2)"><center>Abgeschlossen</center>0</a></center></td>
             </tr>
         </table>
 
@@ -53,7 +55,7 @@
     </div>
 
 
-
+    <!--LISTING-PAGE-->
     <div id="listing-container" class="container">
         <h1 id="listing-header">Offen</h1>
         <p>Hier sind alle Spender aufgelistet, die aus SevDesk importiert wurden und für die noch keine automatische Bescheinigung erstellt wurde.</p>
@@ -64,7 +66,7 @@
         <table id="autocreate-table">
             <thead>
                 <tr>
-                    <th>Erweitern</th>
+                    <th>Mehr</th>
                     <th>Geprüft</th>
 
                     <th>Kdnr</th>
@@ -77,21 +79,23 @@
                     <th>Gesamtsumme</th>
                 </tr>
             </thead>
-            <tr id="donator-autocreate-tr">
-                <td><i id="caret-open" class="fa-solid fa-caret-down"></i><i id="caret-closed" class="fa-solid fa-caret-right"></i></td>
-                <td><input id="checkbox-done" type="checkbox"></td>
-                <td id="customer-number">1</td>
-                <td id="title">Dr.</td>
-                <td id="first-name">Max</td>
-                <td id="last-name">Mustermann</td>
-                <td id="street-number">Musterstraße 3</td>
-                <td id="postal-code-city">Musterhausen</td>
-                <td id="donation-sum">3.000 €</td>
+            <tr class="donator-autocreate-tr">
+                <!--id="caret-open-1" the 1 in open or-closed is for identifying the row/user, the caret is used for-->
+                <td class="caret" id="caret-1"><a href="#" onclick="toggleCaret('caret-1')"><i class="fa-solid fa-caret-down"></i></a></i></td>
+                <td><input class="checkbox-done" type="checkbox"></td>
+                <td class="customer-number">1</td>
+                <td class="title">Dr.</td>
+                <td class="first-name">Max</td>
+                <td class="last-name">Mustermann</td>
+                <td class="street-number">Musterstraße 3</td>
+                <td class="postal-code-city">Musterhausen</td>
+                <td class="donation-sum">3.000 €</td>
             </tr>
             <tr>
                 <td></td>
-                <td colspan="5">
-                    <table id="donation-table">
+                <td colspan="8">
+                    <!--id="donation-1-1" the first 1 is for the Usercount; the second 1 is for identifying the specific donation from that user-->
+                    <table id="donation-1" class="donation-table">
                         <tr>
                             <th>Datum</th>
                             <th>Art</th>
@@ -106,17 +110,15 @@
         </table>
     </div>
     
-
-
-    
     <footer>
         <p>Anwendung entwickelt von Josia Scheerle.</p>
         <p>Bei Fragen oder Problemen <a id="link-mail" href="mailto:scheerle.josia@gmail.com">scheerle.josia@gmail.com</a>. oder Tel.: "Hier einfügen"</p>
     </footer>
 </body>
 
-
-
+<script src="main.js">
+    setStartStatus();
+</script>
 
 
 

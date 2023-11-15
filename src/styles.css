@@ -17,6 +17,9 @@ body {
   margin: 10px;
   min-width: 570px;
 }
+html{
+  min-width: 600px;
+}
 .container {
   margin: 0;
   padding: 1vh 7vh 0 7vh;
@@ -192,7 +195,7 @@ button:active {
   }
 
   a:hover {
-    /* color: #; */
+    color: white;
   }
 
   input,
@@ -296,3 +299,36 @@ table #double-row {
   background:rgb(220, 220, 220);
   border-left: thin solid rgb(100, 100, 100)
 } 
+
+
+
+#autocreate-table {
+  text-align: center;
+}
+#autocreate-table tr, #autocreate-table tr td {
+  width: 100%;
+}
+#autocreate-table tr:nth-child(even) {
+  background: rgb(45,45,45);
+}
+
+
+#autocreate-table thead tr {
+  background-color: rgb(75, 75, 75);
+  text-align: center;
+}
+
+#autocreate-table thead tr th {
+  padding: 10px;
+}
+
+#autocreate-table tbody tr {
+  text-align:left;
+}
+/* .caret a {
+  text-align: center;
+} */
+.checkbox-done input {
+  align-content: center;
+  margin: 0, auto, 0, auto;
+}
