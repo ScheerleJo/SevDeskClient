@@ -10,24 +10,57 @@
     <title>SevDesk - Generierte Spendenbescheinigungen</title>
 </head>
 <body>
+    <div data-tauri-drag-region class="titlebar">
+        <div class="titlebar-button nav-item" id="titlebar-home">
+            <a href="#" onclick="setStartStatus()"><i class="fa-solid fa-house"></i></a>
+        </div>
+        <div class="titlebar-button nav-item" id="titlebar-settings">
+            <a>
+                <!-- <i class="fa-solid fa-bars"></i> -->
+                <i class="fa-solid fa-gear"></i>
+            </a>
+            <ul class="dropdown-list">
+                <li><a href="#"><i class="fa-solid fa-key"></i> Authorisierungs-Token</a></li>
+                <li><a href="#"><i class="fa-solid fa-network-wired"></i> Server-verbindung</a></li>
+                <li><a href="#"><i id="server-status" class="fa-solid fa-power-off"></i> Server starten/stoppen</a></li>
+                <li><a href="#"><i class="fa-solid fa-file"></i> Standard .tex Vorlage</a></li>
+            </ul>     
+            <div class="titlebar-button nav-item" id="titlebar-help">
+                <a href="">Hilfe <i class="fa-solid fa-question"></i></a>
+        </div>
+        <div class="titlebar-button" id="titlebar-minimize">
+            <i class="fa-solid fa-window-minimize"></i>
+        </div>
+        <div class="titlebar-button" id="titlebar-maximize">
+            <!-- <i class="fa-solid fa-maximize"></i> -->
+            <i class="fa-solid fa-window-maximize"></i>
+        </div>
+        <div class="titlebar-button" id="titlebar-close">
+            <i class="fa-solid fa-xmark"></i>
+        </div>
+        </div>
+
+
+        
+    </div>
+
+
+
     <!--NAVBAR / HEAD-->
+
+<!--     
     <div class="container head">
         <nav class="navbar" id="head">
             <ul class="nav-list">
                 <li class="nav-item"><a href="#" onclick="setStartStatus()"><i class="fa-solid fa-house"></i></a></li>
                 <li class="nav-item">
-                    <a href=""><i class="fa-solid fa-bars"></i></a>
-                    <ul class="dropdown-list">
-                        <li><a href="#"><i class="fa-solid fa-key"></i> Authorisierungs-Token</a></li>
-                        <li><a href="#"><i class="fa-solid fa-network-wired"></i> Server-verbindung</a></li>
-                        <li><a href="#"><i id="server-status" class="fa-solid fa-power-off"></i> Server starten/stoppen</a></li>
-                        <li><a href="#"><i class="fa-solid fa-file"></i> Standard .tex Vorlage</a></li>
-                    </ul>            
+                    
+                           
                 </li>
                 <li class="nav-item" id="nav-help"><a href="">Hilfe <i class="fa-solid fa-question"></i></a></li>
             </ul>
         </nav>
-    </div>
+    </div> -->
 
     <!--HOMEPAGE-->
     <div id="start-container" class="container">
@@ -37,7 +70,7 @@
         <div>
             <p class="inline">Jahr auswählen:</p>
             <input class="inline" type="number" name="year" id="input-year" placeholder="Jahr eingeben">
-            <button onclick="">Daten von SevDesk holen</button>
+            <button onclick="showAlert();">Daten von SevDesk holen</button>
         </div>
         <table id="overview-table">
             <tr>
@@ -66,48 +99,51 @@
         <table id="autocreate-table">
             <thead>
                 <tr>
-                    <th>Mehr</th>
-                    <th>Geprüft</th>
+                    <th><span>Mehr</span></th>
+                    <th><span>Geprüft</span></th>
 
-                    <th>Kdnr</th>
-                    <th>Titel</th>
-                    <th>Vorname(n)</th>	
-                    <th>Nachname</th>
-                    <th>Straße & Hausnummer</th>
-                    <th>PLZ & Ort</th>
+                    <th><span>Kdnr</span></th>
+                    <th><span>Titel</span></th>
 
-                    <th>Gesamtsumme</th>
+                    <th><span>Vorname(n)</span></th>
+                    <th><span>Nachname</span></th>
+                    <th><span>Straße</span><span>& Hausnummer</span></th>
+                    <th><span>PLZ </span><span>& Ort</span></th>
+
+                    <th><span>Gesamtsumme</span></th>
                 </tr>
             </thead>
-            <tr class="donator-autocreate-tr">
-                <!--id="caret-open-1" the 1 in open or-closed is for identifying the row/user, the caret is used for-->
-                <td class="caret" id="caret-1"><a href="#" onclick="toggleCaret('caret-1')"><i class="fa-solid fa-caret-down"></i></a></i></td>
-                <td><input class="checkbox-done" type="checkbox"></td>
-                <td class="customer-number">1</td>
-                <td class="title">Dr.</td>
-                <td class="first-name">Max</td>
-                <td class="last-name">Mustermann</td>
-                <td class="street-number">Musterstraße 3</td>
-                <td class="postal-code-city">Musterhausen</td>
-                <td class="donation-sum">3.000 €</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td colspan="8">
-                    <!--id="donation-1-1" the first 1 is for the Usercount; the second 1 is for identifying the specific donation from that user-->
-                    <table id="donation-1" class="donation-table">
-                        <tr>
-                            <th>Datum</th>
-                            <th>Art</th>
-                            <th>Verzicht</th>
-                            <th>Betrag</th>
-                        </tr>
-                    </table>
-                </td>
-                <td></td>
-                <td></td>
-            </tr>
+            <tbody id="autocreate-table-body">
+<!--            DonatorTableScheme
+                <tr class="donator-autocreate-tr">
+                                id="caret-1" the 1 is for identifying the row/user, the caret is used for
+                    <td class="align-center caret" id="caret-1"><a href="#" onclick="toggleCaret('caret-1')"><i class="fa-solid fa-caret-down"></i></a></td>
+                    <td class="align-center"><input class="checkbox-done" type="checkbox"></td>
+                    <td class="customer-number">1</td>
+                    <td class="title">Dr.</td>
+                    <td class="first-name">Max</td>
+                    <td class="last-name">Mustermann</td>
+                    <td class="street-number">Musterstraße 3</td>
+                    <td class="postal-code-city">00001 Musterhausen</td>
+                    <td class="donation-sum">3.000 €</td>
+                </tr> -->
+<!--            DonationTable Scheme
+                <tr>
+                    <td></td>
+                    <td colspan="8">
+                        <table id="donation-1" class="donation-table">
+                            <tr>
+                                <th>Datum</th>
+                                <th>Art</th>
+                                <th>Verzicht</th>
+                                <th>Betrag</th>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>  -->
+            </tbody>
         </table>
+        <button id="save-button"onclick="saveState()">Änderung speichern</button>
     </div>
     
     <footer>
