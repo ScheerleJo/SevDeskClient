@@ -12,10 +12,24 @@
   },
   "tauri": {
     "allowlist": {
+      "notification": {
+        "all": true
+      },
       "all": false,
       "shell": {
         "all": false,
         "open": true
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true
       }
     },
     "bundle": {
@@ -37,9 +51,10 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "SevDeskDonationCerficates",
+        "title": "SevDeskDonationCertificates",
         "width": 1000,
-        "height": 600
+        "height": 600,
+        "decorations": false
       }
     ]
   }
