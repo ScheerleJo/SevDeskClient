@@ -9,146 +9,145 @@
     <script src="https://kit.fontawesome.com/97ecc9f9f9.js" crossorigin="anonymous"></script>
     <title>SevDesk - Generierte Spendenbescheinigungen</title>
 </head>
-<body>
-    <div data-tauri-drag-region class="titlebar">
-        <div class="titlebar-button nav-item" id="titlebar-home">
-            <a href="#" onclick="setStartStatus()"><i class="fa-solid fa-house"></i></a>
-        </div>
-        <div class="titlebar-button nav-item" id="titlebar-settings">
-            <a>
-                <!-- <i class="fa-solid fa-bars"></i> -->
-                <i class="fa-solid fa-gear"></i>
-            </a>
-            <ul class="dropdown-list">
-                <li><a href="#"><i class="fa-solid fa-key"></i> Authorisierungs-Token</a></li>
-                <li><a href="#"><i class="fa-solid fa-network-wired"></i> Server-verbindung</a></li>
-                <li><a href="#"><i id="server-status" class="fa-solid fa-power-off"></i> Server starten/stoppen</a></li>
-                <li><a href="#"><i class="fa-solid fa-file"></i> Standard .tex Vorlage</a></li>
-            </ul>     
-            <div class="titlebar-button nav-item" id="titlebar-help">
-                <a href="">Hilfe <i class="fa-solid fa-question"></i></a>
-        </div>
-        <div class="titlebar-button" id="titlebar-minimize">
-            <i class="fa-solid fa-window-minimize"></i>
-        </div>
-        <div class="titlebar-button" id="titlebar-maximize">
-            <!-- <i class="fa-solid fa-maximize"></i> -->
-            <i class="fa-solid fa-window-maximize"></i>
-        </div>
-        <div class="titlebar-button" id="titlebar-close">
-            <i class="fa-solid fa-xmark"></i>
-        </div>
-        </div>
-
-
-        
-    </div>
-
-
-
+<body>    
     <!--NAVBAR / HEAD-->
-
-<!--     
     <div class="container head">
-        <nav class="navbar" id="head">
-            <ul class="nav-list">
-                <li class="nav-item"><a href="#" onclick="setStartStatus()"><i class="fa-solid fa-house"></i></a></li>
-                <li class="nav-item">
-                    
-                           
+        <nav data-tauri-drag-region class="navbar" id="head">
+            <ul class="nav-list" id="ul-home">
+                <li class="nav-item" id="titlebar-home">
+                    <a href="#" onclick="setStartStatus()"><i class="fa-solid fa-house"></i></a>
                 </li>
-                <li class="nav-item" id="nav-help"><a href="">Hilfe <i class="fa-solid fa-question"></i></a></li>
+                <li class=" nav-item" id="titlebar-settings">
+                    <a>
+                        <!-- <i class="fa-solid fa-bars"></i> -->
+                        <i class="fa-solid fa-gear"></i> Einstellungen
+                        
+                    </a>
+                    <ul class="dropdown-list">
+                        <li><a href="#"><i class="fa-solid fa-key"></i> Authorisierungs-Token</a></li>
+                        <li><a href="#"><i class="fa-solid fa-network-wired"></i> Server-verbindung</a></li>
+                        <li><a href="#"><i id="server-status" class="fa-solid fa-power-off"></i> Server starten/stoppen</a></li>
+                        <li><a href="#"><i class="fa-solid fa-file"></i> Standard .tex Vorlage</a></li>
+                    </ul> 
+                </li>  
+                <li class="nav-item" id="titlebar-help">
+                    <a href="#">Hilfe <i class="fa-solid fa-question"></i></a>
+                </li>
+            </ul>
+            <ul class="nav-list" id="ul-titlebar">
+                <!-- <li>
+                    <a href="#">
+                        <i class="fa-solid fa-sun"></i>
+                        <i class="fa-solid fa-moon"></i>
+                    </a>
+                </li> -->
+                <li class="nav-item">
+                    <a href="#" onclick="minimizeWindow()"id="titlebar-minimize"><i class="fa-solid fa-window-minimize"></i></a>
+                </li>
+                <li class="nav-item" id="titlebar-maximize">
+                    <a href="#" onclick="toggleMaximize()"><i class="fa-solid fa-window-maximize"></i></a>
+                </li>
+                <li class="nav-item" id="titlebar-close">
+                    <a href="#" onclick="closeWindow()"><i class="fa-solid fa-xmark"></i></a>
+                </li>       
             </ul>
         </nav>
-    </div> -->
-
-    <!--HOMEPAGE-->
-    <div id="start-container" class="container">
-        <h1 id>Start</h1>
-        <p>Willkommen bei der automatsierten Erstellung von Spendenbescheinigungen der Theologischen Fernschule e.V.</p>
-
-        <div>
-            <p class="inline">Jahr auswählen:</p>
-            <input class="inline" type="number" name="year" id="input-year" placeholder="Jahr eingeben">
-            <button onclick="showAlert();">Daten von SevDesk holen</button>
-        </div>
-        <table id="overview-table">
-            <tr>
-                <td class="job-nr" id="open-jobs"><center><a href="#" onclick="setListingStatus(0)"><center>Offen</center>0</a></center></td>
-                <td class="job-nr" id="check-jobs"><center><a href="#" onclick="setListingStatus(1)"><center>Prüfen</center>0</a></center></td>
-                <td class="job-nr" id="successful-jobs"><center><a href="#" onclick="setListingStatus(2)"><center>Abgeschlossen</center>0</a></center></td>
-            </tr>
-        </table>
-
-        <ul>
-            <li>"Offen" sind dabei alle angelegten Spender aus SevDesk, die von dort importiert wurden, aber deren Bescheinigung noch nicht angestoßen wurde.</li>
-            <li>"Prüfen" sind alle Spender, deren Bescheinigungen automatisch erstellt wurden. Diese müssen vor dem Absenden zunächst auf ihre Richtigkeit geprüft werden.</li>
-            <li>"Abgeschlossen" sind alle Spender, deren Bescheinigungen bereits geprüft und abgeschickt sind.</li>
-        </ul>
     </div>
-
-
-    <!--LISTING-PAGE-->
-    <div id="listing-container" class="container">
-        <h1 id="listing-header">Offen</h1>
-        <p>Hier sind alle Spender aufgelistet, die aus SevDesk importiert wurden und für die noch keine automatische Bescheinigung erstellt wurde.</p>
-        <div>
-            <input name="check-all" type="checkbox" id="check-all" class="inline">
-            <label for="check-all" class="inline">Alle Geprüft</label>
+    
+    <div class="body-wrapper">
+        <!--HOMEPAGE-->
+        <div id="start-container" class="container">
+            <div class="content-wrapper first">
+                <h1>Start</h1>
+                <p class="second-line">Willkommen bei der automatsierten Erstellung von Spendenbescheinigungen der Theologischen Fernschule e.V.</p>
+        
+                <div>
+                    <p class="inline">Jahr auswählen:</p>
+                    <input class="inline" type="number" name="year" id="input-year" placeholder="Jahr eingeben">
+                    <button onclick="getData()">Daten von SevDesk importieren</button>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <h1>Jobs</h1>
+                <table id="overview-table">
+                    <tr>
+                        <td class="job" id="open-jobs"><center><a href="#" onclick="setListingStatus(0)"><center>Offen</center>0</a></center></td>
+                        <td class="job" id="check-jobs"><center><a href="#" onclick="setListingStatus(1)"><center>Prüfen</center>0</a></center></td>
+                        <td class="job" id="successful-jobs"><center><a href="#" onclick="setListingStatus(2)"><center>Abgeschlossen</center>0</a></center></td>
+                    </tr>
+                </table>
+        
+                <ul>
+                    <li class="second-line"><span>Offen</span> sind dabei alle angelegten Spender aus SevDesk, bei denen das automatische Generieren der Bescheinigung noch nicht angestoßen wurde.</li>
+                    <li class="second-line"><span>Prüfen</span> sind alle Bescheinigungen, die automatisch erstellt wurden und geprüft werden müssen.</li>
+                    <li class="second-line"><span>Abgeschlossen</span> sind alle Spender, deren Bescheinigungen bereits geprüft und abgeschickt sind.</li>
+                </ul>
+            </div>
         </div>
-        <table id="autocreate-table">
-            <thead>
-                <tr>
-                    <th><span>Mehr</span></th>
-                    <th><span>Geprüft</span></th>
-
-                    <th><span>Kdnr</span></th>
-                    <th><span>Titel</span></th>
-
-                    <th><span>Vorname(n)</span></th>
-                    <th><span>Nachname</span></th>
-                    <th><span>Straße</span><span>& Hausnummer</span></th>
-                    <th><span>PLZ </span><span>& Ort</span></th>
-
-                    <th><span>Gesamtsumme</span></th>
-                </tr>
-            </thead>
-            <tbody id="autocreate-table-body">
-<!--            DonatorTableScheme
-                <tr class="donator-autocreate-tr">
-                                id="caret-1" the 1 is for identifying the row/user, the caret is used for
-                    <td class="align-center caret" id="caret-1"><a href="#" onclick="toggleCaret('caret-1')"><i class="fa-solid fa-caret-down"></i></a></td>
-                    <td class="align-center"><input class="checkbox-done" type="checkbox"></td>
-                    <td class="customer-number">1</td>
-                    <td class="title">Dr.</td>
-                    <td class="first-name">Max</td>
-                    <td class="last-name">Mustermann</td>
-                    <td class="street-number">Musterstraße 3</td>
-                    <td class="postal-code-city">00001 Musterhausen</td>
-                    <td class="donation-sum">3.000 €</td>
-                </tr> -->
-<!--            DonationTable Scheme
-                <tr>
-                    <td></td>
-                    <td colspan="8">
-                        <table id="donation-1" class="donation-table">
-                            <tr>
-                                <th>Datum</th>
-                                <th>Art</th>
-                                <th>Verzicht</th>
-                                <th>Betrag</th>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>  -->
-            </tbody>
-        </table>
-        <button id="save-button"onclick="saveState()">Änderung speichern</button>
+    
+    
+        <!--LISTING-PAGE-->
+        <div id="listing-container" class="container">
+            <h1 id="listing-header">Offen</h1>
+            <p>Hier sind alle Spender aufgelistet, die aus SevDesk importiert wurden und für die noch keine automatische Bescheinigung erstellt wurde.</p>
+            <div>
+                <input name="check-all" type="checkbox" id="check-all" class="inline">
+                <label for="check-all" class="inline">Alle Geprüft</label>
+            </div>
+            <table id="autocreate-table">
+                <thead>
+                    <tr>
+                        <th><span>Mehr</span></th>
+                        <th><span>Geprüft</span></th>
+    
+                        <th><span>Kdnr</span></th>
+                        <th><span>Titel</span></th>
+    
+                        <th><span>Vorname(n)</span></th>
+                        <th><span>Nachname</span></th>
+                        <th><span>Straße</span><span>& Hausnummer</span></th>
+                        <th><span>PLZ </span><span>& Ort</span></th>
+    
+                        <th><span>Gesamtsumme</span></th>
+                    </tr>
+                </thead>
+                <tbody id="autocreate-table-body">
+    <!--            DonatorTableScheme
+                    <tr class="donator-autocreate-tr">
+                                    id="caret-1" the 1 is for identifying the row/user, the caret is used for
+                        <td class="align-center caret" id="caret-1"><a href="#" onclick="toggleCaret('caret-1')"><i class="fa-solid fa-caret-down"></i></a></td>
+                        <td class="align-center"><input class="checkbox-done" type="checkbox"></td>
+                        <td class="customer-number">1</td>
+                        <td class="title">Dr.</td>
+                        <td class="first-name">Max</td>
+                        <td class="last-name">Mustermann</td>
+                        <td class="street-number">Musterstraße 3</td>
+                        <td class="postal-code-city">00001 Musterhausen</td>
+                        <td class="donation-sum">3.000 €</td>
+                    </tr> -->
+    <!--            DonationTable Scheme
+                    <tr>
+                        <td></td>
+                        <td colspan="8">
+                            <table id="donation-1" class="donation-table">
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Art</th>
+                                    <th>Verzicht</th>
+                                    <th>Betrag</th>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>  -->
+                </tbody>
+            </table>
+            <button id="save-button"onclick="saveState()">Änderung speichern</button>
+        </div>
     </div>
     
     <footer>
-        <p>Anwendung entwickelt von Josia Scheerle.</p>
-        <p>Bei Fragen oder Problemen <a id="link-mail" href="mailto:scheerle.josia@gmail.com">scheerle.josia@gmail.com</a>. oder Tel.: "Hier einfügen"</p>
+        <!-- <p></p> -->
+        <p>Anwendung entwickelt von Josia Scheerle.Bei Fragen oder Problemen <a id="link-mail" href="mailto:scheerle.josia@gmail.com">scheerle.josia@gmail.com</a>. oder Tel.: "Hier einfügen"</p>
     </footer>
 </body>
 

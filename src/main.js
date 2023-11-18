@@ -1,11 +1,69 @@
-import { appWindow } from '@tauri-apps/api/window';
+DocumentType = module;
 
+// import { appWindow } from "@tauri-apps/api/window";
+const tauriWindow = require('@tauri-apps/api/window');
+// const appWindow = tauriAppWindow.appWindow;
 const { invoke } = window.__TAURI__.tauri;
+
+module.exports = {
+  closeWindow,
+  toggleMaximize,
+  minimizeWindow,
+  setStartStatus,
+  setListingStatus,
+  toggleCaret,
+  getData,
+  showTable
+}
 
 let greetInputEl;
 let greetMsgEl;
 
-setListingStatus();
+
+
+
+
+let userInfo = [
+  // [
+  //   customernumber,
+  //   title,
+  //   firstName,
+  //   lastName,
+  //   streetNumber,
+  //   postalCodeCity,
+  //   donationSum,
+  //   [
+  //     ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
+  //     ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
+  //     ['01.03.2023', 'Spende', 'Verzicht', '250€']],
+  //   state
+  // ],
+  [
+    '1',
+    'title',
+    'firstName',
+    'lastName',
+    'streetNumber',
+    '74343 Hohenhaslach',
+    'donationSum',
+    [
+      ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
+      ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
+      ['01.03.2023', 'Spende', 'Verzicht', '250€']], 0
+  ],
+  [
+    '2',
+    'title',
+    'firstName',
+    'lastName',
+    'streetNumber',
+    'postalCodeCity',
+    'donationSum',
+    [
+      ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
+      ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
+      ['01.03.2023', 'Spende', 'Verzicht', '250€']], 0
+],];
 
 
 async function greet() {
@@ -22,18 +80,25 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+function closeWindow() {
+  tauriWindow.appWindow.close();
+}
+function toggleMaximize(){
+  tauriWindow.appWindow.toggleMaximize();
+}
+function minimizeWindow(){
+  tauriWindow.appWindow.minimize();
+}
 
-
-document
-  .getElementById('titlebar-minimize')
-  .addEventListener('click', () => appWindow.minimize())
-document
-  .getElementById('titlebar-maximize')
-  .addEventListener('click', () => appWindow.toggleMaximize())
-document
-  .getElementById('titlebar-close')
-  .addEventListener('click', () => appWindow.close())
-
+// document
+  // .getElementById('titlebar-minimize')
+  // .addEventListener('click', () => appWindow.minimize())
+// document
+  // .getElementById('titlebar-maximize')
+  // .addEventListener('click', () => appWindow.toggleMaximize())
+// document
+  // .getElementById('titlebar-close')
+  // .addEventListener('click', () => appWindow.close())
 
 
 
@@ -60,9 +125,28 @@ function toggleCaret(elementID) {
     anchorCaret.innerHTML = '<i class="fa-solid fa-caret-right"></i>';
   }
 }
+function getData() {
+  
+}
+function setStartStatus() {
+  showElement('start-container');
+  hideElement('listing-container');
+}
+function setListingStatus(state) {
+  showElement('listing-container');
+  hideElement('start-container');
+  showTable(state);
+}
 
-function showAlert(){
-  let userInfo = [
+function showTable(state) {
+  /*
+    State 0: click on Tab 'open'
+    State 1: click on Tab 'check'
+    State 2: click on Tab 'done'
+  */
+  // let data = getData()   //TODO: Code the process of getting all Data to display in the table
+
+  let data = [
     // [
     //   customernumber,
     //   title,
@@ -102,44 +186,13 @@ function showAlert(){
         ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
         ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
         ['01.03.2023', 'Spende', 'Verzicht', '250€']], 0
-  ],]
-  // let donationInfo = [[
-    // ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
-    // ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
-    // ['01.03.2023', 'Spende', 'Verzicht', '250€']]];
-  createUserTable(userInfo, 1);
-}
-function setStartStatus() {
-  showElement('start-container');
-  hideElement('listing-container');
-}
-function setListingStatus(state) {
-  showElement('listing-container');
-  hideElement('start-container');
-  showTable(state);
-}
-
-function showTable(state) {
-  /*
-    State 0: click on Tab 'open'
-    State 1: click on Tab 'check'
-    State 2: click on Tab 'done'
-  */
-  let data = getData()   //TODO: Code the process of getting all Data to display in the table
+  ],];;
   createUserTable(data, state);
 }
 
 function createUserTable(userInfo, state) {
 
   let tblBody = document.getElementById('autocreate-table-body');
-
-  if(tblBody.firstChild){
-    alert('da is noch wat')
-  }
-  else {
-    alert('alles weg')
-  }
-
   for (let userIndex = 0; userIndex < userInfo.length; userIndex++) {
     let tr = document.createElement('tr');
     tr.setAttribute('class', 'donator-autocreate-tr');
@@ -150,17 +203,19 @@ function createUserTable(userInfo, state) {
       if (j == 0) {
         td.setAttribute('class', 'align-center caret');
         td.setAttribute('id', `caret-${userIndex}`);
-        let a = document.createElement('a')
-          .setAttribute('href', '#')
-          .setAttribute('onclick', `toggleCaret('caret-${userIndex}')`)
-          .appendChild(document.createElement('i').setAttribute('class', 'fa-solid fa-caret-down'));
+        let a = document.createElement('a');
+        a.setAttribute('href', '#');
+        a.setAttribute('onclick', `toggleCaret('caret-${userIndex}')`);
+        let i = document.createElement('i');
+        i.setAttribute('class', 'fa-solid fa-caret-down');
+        a.appendChild(i);
         
         td.appendChild(a);
       } else if (j == 1) {
         td.setAttribute('class', 'align-center');
         let input = document.createElement('input')
-          .setAttribute('class', 'checkbox-done')
-          .setAttribute('type', 'checkbox');
+        input.setAttribute('class', 'checkbox-done')
+        input.setAttribute('type', 'checkbox');
 
         td.appendChild(input);
       } else {
