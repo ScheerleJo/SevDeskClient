@@ -9,7 +9,7 @@
     <script src="https://kit.fontawesome.com/97ecc9f9f9.js" crossorigin="anonymous"></script>
     <title>SevDesk - Generierte Spendenbescheinigungen</title>
 </head>
-<body>    
+<body onload="setStartStatus()">    
     <!--NAVBAR / HEAD-->
     <div class="container head">
         <nav data-tauri-drag-region class="navbar" id="head">
@@ -64,7 +64,7 @@
                 <div>
                     <p class="inline">Jahr auswählen:</p>
                     <input class="inline" type="number" name="year" id="input-year" placeholder="Jahr eingeben">
-                    <button onclick="getData()">Daten von SevDesk importieren</button>
+                    <button onclick="setListingStatus(0)">Daten von SevDesk importieren</button>
                 </div>
             </div>
             <div class="content-wrapper">

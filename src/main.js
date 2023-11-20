@@ -126,26 +126,6 @@ function toggleCaret(elementID) {
   }
 }
 function getData() {
-  
-}
-function setStartStatus() {
-  showElement('start-container');
-  hideElement('listing-container');
-}
-function setListingStatus(state) {
-  showElement('listing-container');
-  hideElement('start-container');
-  showTable(state);
-}
-
-function showTable(state) {
-  /*
-    State 0: click on Tab 'open'
-    State 1: click on Tab 'check'
-    State 2: click on Tab 'done'
-  */
-  // let data = getData()   //TODO: Code the process of getting all Data to display in the table
-
   let data = [
     // [
     //   customernumber,
@@ -187,6 +167,29 @@ function showTable(state) {
         ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
         ['01.03.2023', 'Spende', 'Verzicht', '250€']], 0
   ],];;
+
+  return data;
+
+}
+function setStartStatus() {
+  showElement('start-container');
+  hideElement('listing-container');
+}
+function setListingStatus(state) {
+  showElement('listing-container');
+  hideElement('start-container');
+  showTable(state);
+}
+
+function showTable(state) {
+  /*
+    State 0: click on Tab 'open'
+    State 1: click on Tab 'check'
+    State 2: click on Tab 'done'
+  */
+  let data = getData()   //TODO: Code the process of getting all Data to display in the table
+
+  
   createUserTable(data, state);
 }
 
