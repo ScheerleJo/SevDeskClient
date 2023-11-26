@@ -156,9 +156,9 @@ function showTable(state) {
     //   postalCodeCity,
     //   donationSum,
     //   [
-    //     ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
-    //     ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
-    //     ['01.03.2023', 'Spende', 'Verzicht', '250€']],
+    //     ['01.01.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
+    //     ['01.02.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
+    //     ['01.03.2023', 'Spende', '250€', 'Zweihundertfünfzig']],
     //   state
     // ],
     [
@@ -170,9 +170,10 @@ function showTable(state) {
       '74343 Hohenhaslach',
       'donationSum',
       [
-        ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
-        ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
-        ['01.03.2023', 'Spende', 'Verzicht', '250€']], 0
+        ['01.01.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
+        ['01.02.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
+        ['01.03.2023', 'Spende', '250€', 'Zweihundertfünfzig']],
+      state
     ],
     [
       '2',
@@ -183,9 +184,10 @@ function showTable(state) {
       'postalCodeCity',
       'donationSum',
       [
-        ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
-        ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
-        ['01.03.2023', 'Spende', 'Verzicht', '250€']], 0
+        ['01.01.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
+        ['01.02.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
+        ['01.03.2023', 'Spende', '250€', 'Zweihundertfünfzig']],
+      state
   ],];;
   createUserTable(data, state);
 }
@@ -254,7 +256,7 @@ function createDonationTable(donationInfo, userIndex) {
   innerTbl.setAttribute('class', 'donation-table');
   let innerTrHead = document.createElement('tr');
   
-  let innerHeadInfo = ['Datum', 'Art', 'Verzicht', 'Betrag'];
+  let innerHeadInfo = ['Datum', 'Art', 'Betrag', 'in Worten'];
   for (let i = 0; i < innerHeadInfo.length; i++) {
     let innerTh = document.createElement('th');
     innerTh.appendChild(document.createTextNode(innerHeadInfo[i]));
