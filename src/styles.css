@@ -73,9 +73,12 @@ button:active {
   border-color: #C70003;
   background-color: #e8e8e8;
 }
-#save-button{
+
+.table-button {
   margin: 15px;
+  margin-left: 0;
   float: right;
+
 }
 
 a {
@@ -204,7 +207,7 @@ table {
   min-width: 500px;
   width: 70%;
   max-width: 90%;
-  overflow:hidden;
+  overflow:auto;
   box-shadow: 0 0 20px rgba(20, 20, 20, .3);      /*! */
   border-spacing: 0;
 }
@@ -266,7 +269,7 @@ table tr {
   max-width: none;
   display: block;
   overflow-y: scroll;
-  max-height: 300px;
+  max-height: 400px;
 }
 #autocreate-table tr:nth-child(even) {
   background: rgb(45,45,45); /*! */
@@ -277,6 +280,12 @@ table tr {
 }
 #autocreate-table thead tr th {
   padding: 10px;
+  
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: rgb(75, 75, 75)
 }
 
 .donator-autocreate-tr {
