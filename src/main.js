@@ -20,52 +20,6 @@ let greetInputEl;
 let greetMsgEl;
 
 
-
-
-
-let userInfo = [
-  // [
-  //   customernumber,
-  //   title,
-  //   firstName,
-  //   lastName,
-  //   streetNumber,
-  //   postalCodeCity,
-  //   donationSum,
-  //   [
-  //     ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
-  //     ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
-  //     ['01.03.2023', 'Spende', 'Verzicht', '250€']],
-  //   state
-  // ],
-  [
-    '1',
-    'title',
-    'firstName',
-    'lastName',
-    'streetNumber',
-    '74343 Hohenhaslach',
-    'donationSum',
-    [
-      ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
-      ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
-      ['01.03.2023', 'Spende', 'Verzicht', '250€']], 0
-  ],
-  [
-    '2',
-    'title',
-    'firstName',
-    'lastName',
-    'streetNumber',
-    'postalCodeCity',
-    'donationSum',
-    [
-      ['01.01.2023', 'Spende', 'Verzicht auf Spendenbescheinigung', '250€'],
-      ['01.02.2023', 'Spende', 'Verzicht auf Rückerstattung', '250€'],
-      ['01.03.2023', 'Spende', 'Verzicht', '250€']], 0
-],];
-
-
 async function greet() {
   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
   greetMsgEl.textContent = await invoke("greet", { name: greetInputEl.value });
@@ -102,7 +56,7 @@ function minimizeWindow(){
 
 
 
-document.getElementById('input-year').value = new Date().getFullYear()
+// document.getElementById('input-year').value;
 
 function showElement(elementID) {
   let element = document.getElementById(elementID);
@@ -114,65 +68,19 @@ function hideElement(elementID) {
 }
 
 function toggleCaret(elementID) {
-  let donationTbl = document.getElementById('donation-' + elementID.split('-')[1]);
-  let anchorCaret = document.getElementById(elementID).firstChild;
-  let anchorContentRight = '<i class="fa-solid fa-caret-right"></i>'
+  let donationTblID = 'donation-' + elementID.split('-')[1];
+  let donationTbl = document.getElementById(donationTblID);
+  let anchorCaret = document.getElementById(elementID);
+  let anchorContentRight = '<i class="fa-solid fa-caret-right" aria-hidden="true"></i>'
   if(anchorCaret.innerHTML == anchorContentRight) {
-    donationTbl.style.display = "block";
-    anchorCaret.innerHTML = '<i class="fa-solid fa-caret-down"></i>';
+    showElement(donationTblID);
+    anchorCaret.innerHTML = '<i class="fa-solid fa-caret-down" aria-hidden="true"></i>';
   } else {
-    donationTbl.style.display = "none";
-    anchorCaret.innerHTML = '<i class="fa-solid fa-caret-right"></i>';
+    hideElement(donationTblID);
+    anchorCaret.innerHTML = '<i class="fa-solid fa-caret-right" aria-hidden="true"></i>';
   }
 }
-function getData() {
-  let data = [
-    // [
-    //   customernumber,
-    //   title,
-    //   firstName,
-    //   lastName,
-    //   streetNumber,
-    //   postalCodeCity,
-    //   donationSum,
-    //   [
-    //     ['01.01.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
-    //     ['01.02.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
-    //     ['01.03.2023', 'Spende', '250€', 'Zweihundertfünfzig']],
-    //   state
-    // ],
-    [
-      '1',
-      'title',
-      'firstName',
-      'lastName',
-      'streetNumber',
-      '74343 Hohenhaslach',
-      'donationSum',
-      [
-        ['01.01.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
-        ['01.02.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
-        ['01.03.2023', 'Spende', '250€', 'Zweihundertfünfzig']],
-      state
-    ],
-    [
-      '2',
-      'title',
-      'firstName',
-      'lastName',
-      'streetNumber',
-      'postalCodeCity',
-      'donationSum',
-      [
-        ['01.01.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
-        ['01.02.2023', 'Spende', '250€', 'Zweihundertfünfzig'],
-        ['01.03.2023', 'Spende', '250€', 'Zweihundertfünfzig']],
-      state
-  ],];;
 
-  return data;
-
-}
 function setStartStatus() {
   showElement('start-container');
   hideElement('listing-container');
@@ -180,109 +88,155 @@ function setStartStatus() {
 function setListingStatus(state) {
   showElement('listing-container');
   hideElement('start-container');
-  showTable(state);
+  showTable(status);
 }
 
-function showTable(state) {
+function showTable(status) {
   /*
-    State 0: click on Tab 'open'
-    State 1: click on Tab 'check'
-    State 2: click on Tab 'done'
+    Info: State 0: click on Tab 'open'
+    Info: State 1: click on Tab 'check'
+    Info: State 2: click on Tab 'done'
   */
-  let data = getData()   //TODO: Code the process of getting all Data to display in the table
-
   
-  createUserTable(data, state);
+  createUserTable(status);
 }
 
-function createUserTable(userInfo, state) {
+function createUserTable(status) {
+  if(document.getElementsByClassName('donator-autocreate-tr').firstChild != undefined) {
+    return false;                                                                  
+  } else {
+    let url = 'http://localhost:8040/getDonations?year=2023';
+    fetch(url).then(response => response.json()).then(data => {
+      setTimeout(() => {
+        let tblBody = document.getElementById('autocreate-table-body');
+        for (let userIndex = 0; userIndex < data.length; userIndex++) {
+          const element = data[userIndex];
+          tblBody.appendChild(createDonatorTr(userIndex, element));
+          createDonationTable(element.Donations, userIndex);
+        }
+        return true;
+      }, 100);
+    });
+  }
+}
 
-  let tblBody = document.getElementById('autocreate-table-body');
-  for (let userIndex = 0; userIndex < userInfo.length; userIndex++) {
-    let tr = document.createElement('tr');
-    tr.setAttribute('class', 'donator-autocreate-tr');
-    tr.setAttribute('id', `donator-${userIndex}`);
-    for (let j = 0; j < 9; j++) {
-      let td = document.createElement('td');
-      td.setAttribute('class', `donator-element-${j}`);
-      if (j == 0) {
-        td.setAttribute('class', 'align-center caret');
-        td.setAttribute('id', `caret-${userIndex}`);
-        let a = document.createElement('a');
-        a.setAttribute('href', '#');
-        a.setAttribute('onclick', `toggleCaret('caret-${userIndex}')`);
-        let i = document.createElement('i');
-        i.setAttribute('class', 'fa-solid fa-caret-down');
-        a.appendChild(i);
-        
-        td.appendChild(a);
-      } else if (j == 1) {
+
+function createDonatorTr(index, element) {
+  let tr = document.createElement('tr');
+  tr.setAttribute('class', 'donator-autocreate-tr');
+  tr.setAttribute('id', `donator-${index}`);
+  for (let j = 0; j < 11; j++) {
+    let td = document.createElement('td');
+    td.setAttribute('class', `donator-element-${index}`);
+    switch (j) {
+      case 0: 
         td.setAttribute('class', 'align-center');
         let input = document.createElement('input')
         input.setAttribute('class', 'checkbox-done')
         input.setAttribute('type', 'checkbox');
-
         td.appendChild(input);
-      } else {
-        let span = document.createElement('span');
-        span.appendChild(document.createTextNode(userInfo[userIndex][j - 2]));
-        td.appendChild(span);
-      }
-      tr.appendChild(td);
+        break;
+        case 1:
+          td.setAttribute('class', 'align-center caret');
+          let a = document.createElement('a');
+          a.setAttribute('id', `caret-${index}`);
+          a.setAttribute('href', '#');
+          a.setAttribute('onclick', `toggleCaret('caret-${index}')`);
+          let i = document.createElement('i');
+          i.setAttribute('class', 'fa-solid fa-caret-down');
+          a.appendChild(i);
+          td.appendChild(a);
+          break;
+      case 2: td.appendChild(createDonatorSpan(element.CustomerNumber)); break;
+      case 3: td.appendChild(createDonatorSpan(element.AcademicTitle)); break;
+      case 4: 
+        if(element.Familyname == "") td.setAttribute('colspan', 2);
+        td.appendChild(createDonatorSpan(element.Surename)); 
+        break;
+      case 5: 
+        if(element.Familyname == "") continue;
+        td.appendChild(createDonatorSpan(element.Familyname));
+        break;
+      case 6: td.appendChild(createDonatorSpan(element.Street)); break;
+      case 7: td.appendChild(createDonatorSpan(element.ZipCity)); break;
+      case 8: td.appendChild(createDonatorSpan(element.Country)); break;
+      case 9: td.appendChild(createDonatorSpan(element.TotalSum)); break;
+      case 10: td.appendChild(createDonatorSpan(element.SumInWords)); break;      
     }
-    tblBody.appendChild(tr);
-    let donationInfo = userInfo[userIndex][7];
-    createDonationTable(donationInfo, userIndex);
+    tr.appendChild(td);
   }
+  return tr;
+}
+function createDonatorSpan(donatorElement) {
+  let span = document.createElement('span');
+  span.appendChild(document.createTextNode(donatorElement));
+  return span;
 }
 
 /**
  * Create Table with all Donations Listed in SevDesk to the User above
- * @param  {Array<Array<string>} donationInfo
+ * @param  {Array<Array<string>} donations
  * 2 Dimensional Array, with needed info for a Donation per row of Array
  * @param  {number} userIndex
  * Number of associated User in Table
  */
-function createDonationTable(donationInfo, userIndex) {
-  // donationInfo Sample = [[date, type, waive, sum], [date, type, waive, sum], [...], ...]
+function createDonationTable(donations, userIndex) {
+  //Info: donations Sample = [[Date, Type, Waive, Sum], [Date, Type, Waive, Sum], [...], ...]
   if(document.getElementById(`donation-${userIndex}`) != undefined) {
-    return false;
+    return false;                                                                  
   }
+  //#region CREATE SPACE FOR DONATION TABLE in DONATOR-TABLE
+  
   let tblBody = document.getElementById('autocreate-table-body');
   let outerTr = document.createElement('tr');
   let outerTd = document.createElement('td');
   outerTr.setAttribute('class', 'donation-autocreate-tr');
   outerTr.appendChild(document.createElement('td'));
+  outerTd.setAttribute('colspan', 9);
+
+  //#endregion
   
+  //#region CREATE DONATION-TABLE-HEAD
   let innerTbl = document.createElement('table');
   innerTbl.setAttribute('id', `donation-${userIndex}`);
   innerTbl.setAttribute('class', 'donation-table');
   let innerTrHead = document.createElement('tr');
   
-  let innerHeadInfo = ['Datum', 'Art', 'Betrag', 'in Worten'];
+  let innerHeadInfo = ['Datum', 'Art der Zuwendung', 'Verzicht auf Rückerstattung', 'Summe'];
   for (let i = 0; i < innerHeadInfo.length; i++) {
     let innerTh = document.createElement('th');
     innerTh.appendChild(document.createTextNode(innerHeadInfo[i]));
     innerTrHead.appendChild(innerTh);
   }
+
+  //#endregion
+  
+  //#region CREATE DONATION-TABLE-BODY (FOR EACH DONATION in 'donations')
   innerTbl.appendChild(innerTrHead);
-  for (let i = 0; i < donationInfo.length; i++) {
-    const element = donationInfo[i];
+  for (let i = 0; i < donations.length; i++) {
+    const element = donations[i];
     let innerTr = document.createElement('tr');
-    for (let j = 0; j < 4; j++) {
-      let innerTd = document.createElement('td');
-      innerTd.appendChild(document.createTextNode(element[j]));
-      innerTr.appendChild(innerTd);
-    }
+    
+    innerTr.appendChild(createDonationTd(element.Date));
+    innerTr.appendChild(createDonationTd(element.Type));
+    innerTr.appendChild(createDonationTd(element.Waive));
+    innerTr.appendChild(createDonationTd(element.Sum));
+
     innerTbl.appendChild(innerTr);
   }
-  outerTd.setAttribute('colspan', 8);
+  //#endregion
   outerTd.appendChild(innerTbl);
   outerTr.appendChild(outerTd);
   tblBody.appendChild(outerTr);
 
   toggleCaret(`caret-${userIndex}`);
   return true;
+}
+
+function createDonationTd(donationElement) {
+  let innerTd = document.createElement('td');
+  innerTd.appendChild(document.createTextNode(donationElement));
+  return innerTd
 }
 
 function clearAllOnStartUp(){
