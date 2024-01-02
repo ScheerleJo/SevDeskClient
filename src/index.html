@@ -78,8 +78,8 @@
                 </table>
         
                 <ul>
-                    <li class="second-line"><span>Offen</span> sind dabei alle angelegten Spender aus SevDesk, bei denen das automatische Generieren der Bescheinigung noch nicht angestoßen wurde.</li>
-                    <li class="second-line"><span>Prüfen</span> sind alle Bescheinigungen, die automatisch erstellt wurden und geprüft werden müssen.</li>
+                    <li class="second-line"><span>Offen</span> sind dabei alle angelegten Spender aus SevDesk, bei denen das automatische Generieren der Bescheinigung noch nicht angestoßen wurde. Hier muss gecheckt werden, ob alle Daten der einzelnen Spender korrekt sind. Ist das der Fall kann für den jeweiligen Spender der Haken geprüft gesetzt werden. </li>
+                    <li class="second-line"><span>Prüfen</span> sind alle Bescheinigungen, die automatisch erstellt wurden und geprüft werden müssen. Hier landen alle Einträge der Spender. Die Ausdrucke werden anhand der Daten erneut auf Richtigkeit geprüft. Nach Setzen des Hakens sind die Spendenbescheinigungen als Abgeschlossen markiert</li>
                     <li class="second-line"><span>Abgeschlossen</span> sind alle Spender, deren Bescheinigungen bereits geprüft und abgeschickt sind.</li>
                 </ul>
             </div>
@@ -90,25 +90,23 @@
         <div id="listing-container" class="container">
             <h1 id="listing-header">Offen</h1>
             <p>Hier sind alle Spender aufgelistet, die aus SevDesk importiert wurden und für die noch keine automatische Bescheinigung erstellt wurde.</p>
-            <div>
-                <input name="check-all" type="checkbox" id="check-all" class="inline">
-                <label for="check-all" class="inline">Alle Geprüft</label>
-            </div>
             <table id="autocreate-table">
                 <thead>
                     <tr>
+                        <th><span><input name="check-all" type="checkbox" id="check-all"></span></th>
                         <th><span>Mehr</span></th>
-                        <th><span>Geprüft</span></th>
     
                         <th><span>Kdnr</span></th>
                         <th><span>Titel</span></th>
     
                         <th><span>Vorname(n)</span></th>
                         <th><span>Nachname</span></th>
-                        <th><span>Straße</span><span>& Hausnummer</span></th>
+                        <th><span>Straße</span><span> & Hausnummer</span></th>
                         <th><span>PLZ </span><span>& Ort</span></th>
+                        <th><span>Land</span></th>
     
                         <th><span>Gesamtsumme</span></th>
+                        <th><span>in Worten</span></th>
                     </tr>
                 </thead>
                 <tbody id="autocreate-table-body">
@@ -141,13 +139,14 @@
                     </tr>  -->
                 </tbody>
             </table>
-            <button id="save-button"onclick="saveState()">Änderung speichern</button>
+            <button id="delete-button" class="table-button" onclick="saveState()">Ausgewählte löschen</button>
+            <button id="save-button" class="table-button" onclick="saveState()">Ausgewählte geprüft</button>
         </div>
     </div>
     
     <footer>
         <!-- <p></p> -->
-        <p>Anwendung entwickelt von Josia Scheerle.Bei Fragen oder Problemen <a id="link-mail" href="mailto:scheerle.josia@gmail.com">scheerle.josia@gmail.com</a>. oder Tel.: "Hier einfügen"</p>
+        <p>Anwendung entwickelt von Josia Scheerle. Bei Fragen oder Problemen <a id="link-mail" href="mailto:scheerle.josia@gmail.com">scheerle.josia@gmail.com</a>. oder Tel.: "Hier einfügen"</p>
     </footer>
 </body>
 
