@@ -52,9 +52,9 @@
         "fullscreen": false,
         "resizable": true,
         "title": "SevDeskDonationCertificates",
-        "width": 1000,
-        "height": 580,
-        "decorations": false
+        "width": 1400,
+        "height": 670,
+        "decorations": true
       }
     ]
   }
