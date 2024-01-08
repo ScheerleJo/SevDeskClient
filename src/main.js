@@ -13,7 +13,11 @@ module.exports = {
   showTable,
   loadData,
   deleteSelectedDonators,
-  moveSelectedDonators
+  moveSelectedDonators,
+  selectAllCheckboxes,
+  saveCurrentState,
+  showSetAuthToken,
+  setAuthToken
 }
 
 /*
@@ -167,13 +171,21 @@ function showTable(status) {
     case 0: 
       tblBody = document.getElementById('statusBody0');
       showElement('move-button');
+      document.getElementById('listing-header').innerHTML = 'Offen'
+      document.getElementById('listing-paragraph').innerHTML = 'sind dabei alle angelegten Spender aus SevDesk, bei denen das automatische Generieren der Bescheinigung noch nicht angestoßen wurde. Hier muss gecheckt werden, ob alle Daten der einzelnen Spender korrekt sind. Ist das der Fall kann für den jeweiligen Spender der Haken geprüft gesetzt werden.'
+      document.getElementById('move-button').innerHTML = 'LaTeX Datei aus Ausgewählten Elementen erstellen'
       break;
     case 1: 
       tblBody = document.getElementById('statusBody1'); 
+      document.getElementById('listing-header').innerHTML = 'Prüfen'
+      document.getElementById('listing-paragraph').innerHTML = 'sind alle Bescheinigungen, die automatisch erstellt wurden und geprüft werden müssen. Hier landen alle Einträge der Spender. Die Ausdrucke werden anhand der Daten erneut auf Richtigkeit geprüft. Nach Setzen des Hakens sind die Spendenbescheinigungen als Abgeschlossen markiert.'
       showElement('move-button');
+      document.getElementById('move-button').innerHTML = 'Ausgewählte Geprüft'
       break;
-    case 2: 
+      case 2: 
       tblBody = document.getElementById('statusBody2'); 
+      document.getElementById('listing-header').innerHTML = 'Abgeschlossen'
+      document.getElementById('listing-paragraph').innerHTML = 'sind alle Spender, deren Bescheinigungen bereits geprüft und abgeschickt sind.'
       hideElement('move-button');
       break;
     default: return;
@@ -191,14 +203,14 @@ function createDonatorTr(index, element) {
     td.setAttribute('class', `donator-element-${index}`);
     switch (j) {
       case 0: 
-        td.setAttribute('class', 'align-center');
+        td.setAttribute('class', 'align-center donator-element-' + index);
         let input = document.createElement('input')
         input.setAttribute('class', 'checkbox-done')
         input.setAttribute('type', 'checkbox');
         td.appendChild(input);
         break;
         case 1:
-          td.setAttribute('class', 'align-center caret');
+          td.setAttribute('class', 'align-center caret donator-element-' + index);
           let a = document.createElement('a');
           a.setAttribute('id', `caret-${index}`);
           a.setAttribute('href', '#');
@@ -248,6 +260,7 @@ function createDonationTable(donations, userIndex) {
   let outerTr = document.createElement('tr');
   let outerTd = document.createElement('td');
   outerTr.setAttribute('class', 'donation-autocreate-tr');
+  outerTr.setAttribute('id', `donation-tr-${userIndex}`);
   outerTr.appendChild(document.createElement('td'));
   outerTd.setAttribute('colspan', 9);
   //#endregion
@@ -293,35 +306,147 @@ function createDonationTd(donationElement) {
   return innerTd
 }
 
-function clearAllChildren(elementID){
-  let tblBody = document.getElementById(elementID);
-  while (tblBody.firstChild) {
-    tblBody.removeChild(tblBody.firstChild);
-  }
-}
-
 function selectAllCheckboxes() {
+  let checked = document.getElementById('check-all').checked
+  let tblBody = document.getElementById('autocreate-table-body')
+  for(let i = 0, row; row = tblBody.rows[i]; i += 2) {
+    let donatorIndex = row.id.split('-')[1];
+    let input = row.cells[0].firstChild
+    if(checked) {
+      input.checked = true;
+    } else {
+      input.checked = false;
+      
+    }
+  }
   
 }
 
 function deleteSelectedDonators() {
-  
-  if(document.getElementById('check-all').checked) {
+  let storedData = JSON.parse(document.getElementById('donatorData-storage').innerHTML);
+  let donatorData = storedData.Data;
+  let tblBody = document.getElementById('autocreate-table-body');
+  let selected = getSelected(tblBody);
 
-  } else {
-    let tblBody = document.getElementById('autocreate-table-body');
-    for(let i = 0, row; row = tblBody.rows[i]; i += 2) {
-      let td = row.cells[0]
-      let input = td.firstChild
-      if (input.checked ) {
-        // console.log("TRUE")
-      } else {
-        // console.log("FALSE");
+  for(let i = 0; i < donatorData.length; i++) {
+    for(let j = 0; j < selected.length; j++) {
+      if(selected[j] == i) {
+        tblBody.removeChild(document.getElementById(`donator-${i}`))
+        tblBody.removeChild(document.getElementById(`donation-tr-${i}`))
+        let url = 'http://localhost:8040/deleteItem?donatorIndex=' + i; 
+        fetch(url).then(response => response.json()).then(data => {
+          setTimeout(() => {
+            if(data == 400)  showMessage(`<p id="status-info">Beim Löschen des Elements ${i} ist ein Fehler aufgetreten</p>`); 
+            else {
+              donatorData = data; 
+              countStatus(donatorData);
+              createTableBodies(donatorData); 
+              storedData.Data = donatorData;
+              document.getElementById('donatorData-storage').innerHTML = JSON.stringify(storedData);            }
+          }, 100);
+        });
       }
     }
   }
 }
 
 function moveSelectedDonators() {
+  let storedData = JSON.parse(document.getElementById('donatorData-storage').innerHTML);
+  let donatorData = storedData.Data;
+  let tblBody = document.getElementById('autocreate-table-body');
+  let selected = getSelected(tblBody);
 
+  for(let i = 0; i < donatorData.length; i++) {
+    for(let j = 0; j < selected.length; j++) {
+      if(selected[j] == i) {
+        tblBody.removeChild(document.getElementById(`donator-${i}`));
+        tblBody.removeChild(document.getElementById(`donation-tr-${i}`));
+        
+        let url = 'http://localhost:8040/moveItem?donatorIndex=' + i; 
+        fetch(url).then(response => response.json()).then(data => {
+          setTimeout(() => {
+            if(data == 400) showMessage(`<p id="status-info">Beim Verschieben des Elements ${i} ist ein Fehler aufgetreten</p>`); 
+            else{
+              donatorData = data; 
+              countStatus(donatorData);
+              createTableBodies(donatorData); 
+              storedData.Data = donatorData;
+              document.getElementById('donatorData-storage').innerHTML = JSON.stringify(storedData);
+              if(selected.length - 1 == j) {      // Last Element
+                fetch('http://localhost:8040/createLatex').then(response => response.json()).then(data => {
+                  setTimeout(() => {
+                    try {
+                      if(data.Status == 200) showMessage(`<p id="status-info">LaTeX-Datei wurde erstellt und im 'Downloads'-Verzeichnis abgespeichert</p>`);
+                      else showMessage(`<p id="status-info">Beim Erstellen der LaTeX-Datei ist etwas schiefgelaufen:\n ${data}</p>`);
+                    } catch(error) {
+                      showMessage(`<p id="status-info">Beim Erstellen der LaTeX-Datei ist etwas schiefgelaufen:\n ${error}</p>`);
+                    }
+                  }, 100);
+                });
+              }
+            } 
+          }, 100);
+        });
+      }
+    }
+  }
+}
+
+function getSelected(tblBody) {
+  let selected = [];
+  for(let i = 0, row; row = tblBody.rows[i]; i += 2) {
+    let td = row.cells[0]
+    let donatorIndex = row.id.split('-')[1];
+    let input = td.firstChild
+    if (input.checked) selected.push(donatorIndex);
+  }
+  return selected;
+}
+
+function saveCurrentState() {
+  fetch('http://localhost:8040/saveData').then(response => response.json()).then(data => {
+    setTimeout(() => {
+      console.log(data)
+      try {
+        if(data.Status == 200) showMessage(`<p id="status-info">Aktueller Status wurde gespeichert und wird beim nächsten Neustart automatisch neu geladen</p>`);
+        else showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}</p>`);
+      } catch(error) {
+        showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
+      }
+    }, 100);
+  });
+}
+
+function showSetAuthToken(){
+  let message = document.createElement('div')
+  let button = document.createElement('button');
+  button.setAttribute('onclick', 'setAuthToken()');
+  button.appendChild(document.createTextNode('Schlüssel speichern'));
+  let input = document.createElement('input');
+  input.setAttribute('id', 'input-authKey');
+  input.setAttribute('placeholder', 'API-Schlüssel eingeben');
+  input.setAttribute('type', 'text');
+  let p = document.createElement('p');
+  p.setAttribute('id', 'auth-info');
+  p.appendChild(document.createTextNode('Hier den API-Schlüssel aus SevDesk einfügen:'))
+  message.appendChild(p);
+  message.appendChild(input);
+  message.appendChild(button);
+  showMessage(message.innerHTML);
+}
+
+function setAuthToken() {
+
+  fetch(`http://localhost:8040/saveToken?token=${document.getElementById('input-authKey').value}`).then(response => response.json()).then(data => {
+    setTimeout(() => {
+      console.log(data);
+      try {
+        if(data.Status == 200) showMessage(`<p id="status-info">Das Token wurde gespeichert</p>`);
+        else showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}</p>`);
+      } catch(error) {
+        showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
+      }
+      // document.getElementById('input-authKey').value = '';
+    }, 100);
+  });
 }
