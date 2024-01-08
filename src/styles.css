@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Inter, Avenir, Helvetica, Arial, Fans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -79,7 +79,6 @@ button:active {
   margin: 15px;
   margin-left: 0;
   float: right;
-
 }
 
 a {
@@ -114,15 +113,15 @@ a:link, a:visited {
   margin: 0;
   /* background: #0f0f0f; */
   /* border-bottom: #0f0f0f 1px solid; */
-  font-size: 1px;
+  font-size: 1em;
   overflow-y: hidden;
 }
 .nav-list {
 
   list-style: none;
-  text-align: center;
   margin: 0;
   padding: 0;
+  width: 100%;
 }
 #ul-home {
   float: left;
@@ -135,7 +134,7 @@ a:link, a:visited {
   display: inline-block;
   text-align: center;
   margin: 5px;
-  width: inherit;
+  
   height: inherit;
 }
 
@@ -184,16 +183,16 @@ nav a:hover {
 nav a:active {
   background:rgba(220, 220, 220, .8);             /*! */
 }
-nav, nav ul, nav ul li {
+/* nav, nav ul, nav ul li {
   margin: 0;
   padding: 0;
-}
+} */
 nav ul {
   display: inline-block;
 }
-
-#titlebar-close a:hover{
-  background: #C70003;
+.nav-button {
+  float:right;
+  margin-right: 5vh;
 }
 /*#endregion NAVBAR*/
 
@@ -214,6 +213,10 @@ nav ul {
 }
 #status-info {
   margin: 0;
+}
+#input-authKey {
+  margin-right: 5px;
+  width: 300px;
 }
 #input-year {
   width:20vh;
@@ -313,9 +316,6 @@ table tr {
 .donator-autocreate-tr td{
   padding: 5px 10px;
 }
-/* .donator-element-8 {
-  padding-right: 20px;
-} */
 .donation-autocreate-tr td {
   padding: 0;
 }
