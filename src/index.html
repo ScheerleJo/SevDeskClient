@@ -25,6 +25,7 @@
                     </ul> 
                 </li>  
                 <!-- <li class="nav-item" id="titlebar-help"><a href="#">Hilfe <i class="fa-solid fa-question"></i></a></li> -->
+                <li class="nav-item nav-button "><button onclick="saveCurrentState()">Aktuellen Stand speichern</button></li>
             </ul>
         </nav>
     </div>
@@ -63,7 +64,7 @@
         
                 <ul>
                     <li class="second-line"><span>Offen</span> sind dabei alle angelegten Spender aus SevDesk, bei denen das automatische Generieren der Bescheinigung noch nicht angestoßen wurde. Hier muss gecheckt werden, ob alle Daten der einzelnen Spender korrekt sind. Ist das der Fall kann für den jeweiligen Spender der Haken geprüft gesetzt werden. </li>
-                    <li class="second-line"><span>Prüfen</span> sind alle Bescheinigungen, die automatisch erstellt wurden und geprüft werden müssen. Hier landen alle Einträge der Spender. Die Ausdrucke werden anhand der Daten erneut auf Richtigkeit geprüft. Nach Setzen des Hakens sind die Spendenbescheinigungen als Abgeschlossen markiert</li>
+                    <li class="second-line"><span>Prüfen</span> sind alle Bescheinigungen, die automatisch erstellt wurden und geprüft werden müssen. Hier landen alle Einträge der Spender. Die Ausdrucke werden anhand der Daten erneut auf Richtigkeit geprüft. Nach Setzen des Hakens sind die Spendenbescheinigungen als Abgeschlossen markiert.</li>
                     <li class="second-line"><span>Abgeschlossen</span> sind alle Spender, deren Bescheinigungen bereits geprüft und abgeschickt sind.</li>
                 </ul>
             </div>
@@ -71,12 +72,12 @@
     
         <!--LISTING-PAGE-->
         <div id="listing-container" class="container">
-            <h1 id="listing-header">Offen</h1>
-            <p>Hier sind alle Spender aufgelistet, die aus SevDesk importiert wurden und für die noch keine automatische Bescheinigung erstellt wurde.</p>
+            <h1 id="listing-header"></h1>
+            <p id="listing-paragraph"></p>
             <table id="autocreate-table">
                 <thead>
                     <tr>
-                        <th><span><input name="check-all" type="checkbox" id="check-all"></span></th>
+                        <th><span><input name="check-all" type="checkbox" id="check-all" onchange="selectAllCheckboxes()"></span></th>
                         <th><span>Mehr</span></th>
     
                         <th><span>Kdnr</span></th>
