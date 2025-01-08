@@ -1,6 +1,6 @@
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 24px;
   font-weight: 400;
 
@@ -13,6 +13,10 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
+* {
+  box-sizing: border-box;
+}
+html,
 body {
   margin: 0;
   min-width: 570px;
@@ -23,30 +27,16 @@ html{
   min-width: 600px;
 }
 
-h1 {
-  margin-top: 10px;
-  text-align: left;
-  margin-bottom: 10px;
-}
-
 p {
   font-size: 15px;
 }
-header {
-  overflow: hidden;
-  position: absolute;
-  width: 100%;
-}
 
-.second-line span {
-  font-weight: bold;
-}
 
 input,
 button {
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  padding: 0.6em 1em;
   font-size: 1em; 
   font-weight: 500;
   font-family: inherit;
@@ -54,33 +44,24 @@ button {
   background-color: #ffffff;
   transition: border-color 0.25s;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
+  margin: 0.5em 0 0.5em 0.5em ;
 
+}
 button {
   cursor: pointer;
 }
-
-button:hover {
+button:hover, input:focus-visible {
   border-color: #009fe3;
 }
-
-button i {
-  transition: color 0.25s;
-}
-
-button:hover i {
-  color: #006b99;
-}
-
 button:active {
   border-color: #009fe3;
   background-color: #e8e8e8;
 }
-
-.table-button {
-  margin: 15px;
-  margin-left: 0;
-  float: right;
+.button-wrapper {
+  display: flex;
+  justify-content: right;
+  width: 95%;
+  margin: 0;
 }
 
 a {
@@ -91,17 +72,27 @@ a {
 }
 
 .container {
-  margin: 0 10px;
-  padding: 1vh 2vh 0 2vh;
+  margin-bottom: 10px;
+  padding: 0 2vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  border-radius: 8px;  
+  border: #67777e 1px solid;
+  width: 95%;
+}
+
+.body-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .content-wrapper {
-  border-radius: 5px;
-  border: #0f0f0f 1px solid;
-  margin: 10px;
+  margin-bottom: 10px;
   padding: 10px 10px 5px 10px;
 }
 
@@ -162,7 +153,7 @@ nav ul li a {
   background: #98abb3;
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.3);
   padding: 5px;
-  border-radius: 10px;
+  border-radius: 8px;
   z-index: 10;
   width: auto;
 }
@@ -191,16 +182,20 @@ nav ul {
 /*#endregion NAVBAR*/
 
 #status-container {
-  background-color: rgba(255, 217, 0, 0.7);              
-  display: block;
-  padding: 0;
-  margin-bottom: 0;
+  background-color: rgba(255, 217, 0, 0.7); 
+  border-color:#0f0f0f;         
 }
 #close-status {
   position: relative;
   width: auto;
   float: right;
-  margin: 10px 20px;
+  margin-top: 5px;
+  padding: 5px 10px;
+}
+#close-status:hover {
+  cursor: pointer;
+  background: rgba(220, 220, 220, .4);
+  border-radius: 8px;
 }
 #status-content {
   margin: 10px;
@@ -213,95 +208,42 @@ nav ul {
   width: 300px;
 }
 #input-year {
-  width:20vh;
+  width:23vh;
+  margin-right:0;
 }
 
-/* #region OVERVIEW-TABLE */
+/*#region AUTOCREATE-TABLE */
 table {
   align-content: center;
   border-collapse: separate;
   min-width: 500px;
-  width: 70%;
-  max-width: 90%;
-  overflow:auto;
+  width: 95%;
+  max-width: 95%;
   box-shadow: 0 0 20px rgba(20, 20, 20, .2);
   border-spacing: 0;
-  border-radius: 8px;
-}
-
-table td {
-  border-bottom: thin solid rgb(167, 167, 167);
-}
-table tr {
-  background: #ffffff;
-}
-
-#overview-table {
-  margin: 25px auto;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
-#overview-table td {
-  padding: 12px 15px;
-  width: 33.3%;
-  border-bottom: none;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-#overview-table tr, #overview-table td{
-  background-color: #ffffff;
-}
-#overview-table td:hover {
-  border-color: #009fe3;
-}
-#overview-table td:active {
-  border-color: #009fe3;
-  background-color: #e8e8e8;
-}
-
-#open-jobs a { color: rgb(0, 0, 0); }
-#check-jobs a { color: rgb(204, 105, 0); }
-#successful-jobs a { color: rgb(0, 157, 0); }
-
-.job {
-  font-weight: bold;
-}
-/* #endregion OVERVIEW-TABLE */
-
-/*#region AUTOCREATE-TABLE */
-#autocreate-table{
-  width: auto;
-  max-width: none;
   display: block;
-  overflow-y: scroll;
   max-height: 400px;
+  overflow-y: auto;
 }
+
 #autocreate-table tr:nth-child(even) {
   background: #cacaca; 
   border-bottom: none;
 }
 #autocreate-table thead  {
-  background-color: rgb(255, 0, 0);
   text-align: center;
 }
+#autocreate-table thead tr  {
+  background: #67777e;
+}
+
 #autocreate-table thead tr th {
   padding: 10px;
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  z-index: 1;
-  background-color: #67777e;
+  z-index: 1;  
+  background: #67777e;
 }
 
 .donator-autocreate-tr {
@@ -309,6 +251,7 @@ table tr {
 }
 .donator-autocreate-tr td{
   padding: 5px 10px;
+  text-align: center;
 }
 .donation-autocreate-tr td {
   padding: 0;
@@ -332,7 +275,6 @@ table tr {
 
 /*#region FOOTER */
 footer {
-  width: 95%;
   position: absolute;
   bottom: 0;
 }
@@ -361,11 +303,6 @@ footer p a {
   margin: 0;
   padding: 0;
 }
-.first {
-  padding-top: 0;
-  margin-top: 0;
-}
-
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -382,33 +319,15 @@ footer p a {
   }
 
   input,
-  button, 
-  #overview-table {
+  button{
     color: #ffffff;
     background-color: #0f0f0f98;
   }
   button:active {
     background-color: #0f0f0f69;
   }
-  #open-jobs a { color: rgb(255, 255, 255); }    
-  #check-jobs a { color: rgb(240, 124, 0); }     
-  #successful-jobs a { color: rgb(0, 172, 0); } 
-
-
-  #overview-table tr,
-  #overview-table td {
-    background: transparent;
-    color: #ffffff;
-  }
-  #overview-table td:active {
-    background-color: #0f0f0f69;
-  }
-
   .nav-item, .nav-item i, .second-line span {
     color: #f6f6f6;
-  }
-  .second-line {
-    color: rgb(170, 170, 170);
   }
 
   .dropdown-list {
@@ -439,6 +358,4 @@ footer p a {
   footer p {
     color: rgb(170, 170, 170);
   }
-
-
 }
