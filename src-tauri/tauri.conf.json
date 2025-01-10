@@ -21,15 +21,20 @@
         "open": true
       },
       "window": {
-        "all": false,
-        "close": true,
-        "hide": true,
-        "show": true,
-        "maximize": true,
-        "minimize": true,
-        "unmaximize": true,
-        "unminimize": true,
-        "startDragging": true
+        "all": true
+      },
+      "fs": {
+        "all": true,
+        "copyFile": false,
+        "createDir": false,
+        "exists": false,
+        "readDir": false,
+        "readFile": false,
+        "removeDir": false,
+        "removeFile": false,
+        "renameFile": false,
+        "scope": ["$APPDATA/databases/*","$DOWNLOAD/*", "$DESKTOP/*"],
+        "writeFile": false
       }
     },
     "bundle": {

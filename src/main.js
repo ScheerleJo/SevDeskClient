@@ -1,37 +1,24 @@
 DocumentType = module;
 
 const { invoke } = window.__TAURI__.tauri;
+// const { BaseDirectory } = window.__TAURI__.fs;
+// const { downloadDir } = window.__TAURI__.path
+// const { exists, BaseDirectory, createDir, createFile, writeFile, readFile } = window.__TAURI__.fs;
+// // import {BaseDirectory} from '@tauri-apps/api/fs';
 
 module.exports = {
   toggleCaret,
   fetchNewData,
   showTable,
   loadData,
+  showMessage,
   createLatexFile,
   saveCurrentState,
   showSetAuthToken,
   showSetConnection,
   setAuthToken,
-  setConnection
+  setConnection,
 }
-
-/*
-let greetInputEl;
-let greetMsgEl;
-async function greet() {
-  // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  greetMsgEl.textContent = await invoke("greet", { name: greetInputEl.value });
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  greetInputEl = document.querySelector("#greet-input");
-  greetMsgEl = document.querySelector("#greet-msg");
-  document.querySelector("#greet-form").addEventListener("submit", (e) => {
-    e.preventDefault();
-    greet();
-  });
-});
-*/
 
 //#region UTILITY
 function showElement(elementID) {
@@ -140,6 +127,12 @@ function createDonatorTr(userID, element) {
         td.appendChild(input2);
         break;
       case 10:
+        td.setAttribute('class', 'donator-element-' + userID);
+        let button = document.createElement('button');
+        button.setAttribute('onclick', `refetchDonator(${userID})`);
+        button.appendChild(document.createTextNode('Zurücksetzen'));
+        td.appendChild(button);
+        break;
         //TODO: Add Button to create refetch
     }
     tr.appendChild(td);
@@ -263,7 +256,6 @@ function createDonationTd(donationElement) {
 
 function saveCurrentState() {
   fetch(document.getElementById('server-connection').innerHTML +'/api/saveData').then(response => response.json()).then(data => {
-    console.log(data);
     setTimeout(() => {
       try {
         if(data.Status == 201) showMessage(`<p id="status-info">Aktueller Status wurde gespeichert und wird beim nächsten Neustart automatisch neu geladen</p>`);

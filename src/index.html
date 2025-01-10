@@ -66,7 +66,9 @@
         </table>
         <div class="button-wrapper">
             <button onclick="fetchNewData()">Daten neu abfragen</button>
+            <button onclick="downloadTex()">Test</button>
             <button id="move-button" class="table-button" onclick="createLatexFile()">Bescheinigungen erstellen</button>
+
         </div>
     </div>
     <footer>
@@ -74,8 +76,34 @@
     </footer>
 </body>
 
+<script>
+
+// import { exists, BaseDirectory, createDir, createFile, writeFile, readFile } from '@tauri-apps/api/fs';
+// async function createConfigFile() {
+//   // let path = await BaseDirectory.Download + '/config.json';
+//     let content = { 'server': 'http://' + connection }
+//   // await writeTextFile(path, JSON.stringify(content), { dir: BaseDirectory.Download });
+//     await createDir('users', { dir: BaseDirectory.Download, recursive: false });
+// }
+
+function downloadTex() {
+    fetch('http://localhost:8040/getLatex').then(response => {
+        return response.blob();
+    }).then(blob => {
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'test.tex';
+        a.click();
+    });
+}
+
+
+</script>
+
+
 <script src="main.js">
-    setStartStatus();
+    loadData();
 </script>
 <p style="display: none;" id="server-connection">http://localhost:8040</p>
 <p style="display: none;" id="donatorData-storage"></p>
