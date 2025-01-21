@@ -26,7 +26,6 @@ body {
 html{
   min-width: 600px;
 }
-
 p {
   font-size: 15px;
 }
@@ -45,8 +44,11 @@ button {
   transition: border-color 0.25s;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
   margin: 0.5em 0 0.5em 0.5em ;
-
 }
+td input, td button {
+  margin: 0;
+}
+
 button {
   cursor: pointer;
 }
@@ -110,7 +112,7 @@ a:link, a:visited {
 .nav-list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 20px ;
   width: 100%;
 }
 #ul-home {
@@ -123,18 +125,16 @@ a:link, a:visited {
 .nav-item {
   display: inline-block;
   text-align: center;
-  margin: 5px;
+  margin: 5px 0;
   height: inherit;
 }
-
-#nav-help {
-  position: absolute;
-  right: 30px;
+#titlebar-help a {
+  padding-left: 0;
 }
 
 nav ul li a {
   padding: 5px;
-  font-size: large;
+  /* font-size: large; */
   display: block;
   text-decoration: none;
 }
@@ -161,7 +161,7 @@ nav ul li a {
   display: block;
   width: auto;
 }
-nav ul li:hover ul {
+nav ul #titlebar-settings:hover ul {
   display: block;
 }
 
@@ -177,7 +177,33 @@ nav ul {
 }
 .nav-button {
   float:right;
-  margin-right: 5vh;
+  
+}
+#server-status * {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+#server-status i {
+  margin-right: 5px;
+}
+#server-status {
+  float: right;
+}
+.nav-item i {
+  height: 20px;
+  width: 20px;
+}
+#titlebar-save i {
+  color: #55a0fc;
+  margin-right: 5px;
+}
+#titlebar-load i {
+  color: #fae162;
+  margin-right: 5px;
+}
+#titlebar-settings i {
+  color: #8b8b8b;
 }
 /*#endregion NAVBAR*/
 
@@ -200,10 +226,10 @@ nav ul {
 #status-content {
   margin: 10px;
 }
-#status-info {
+#status-content p {
   margin: 0;
 }
-#input-authKey {
+#status-content input {
   margin-right: 5px;
   width: 300px;
 }
@@ -222,7 +248,7 @@ table {
   box-shadow: 0 0 20px rgba(20, 20, 20, .2);
   border-spacing: 0;
   display: block;
-  max-height: 400px;
+  max-height: 600px;
   overflow-y: auto;
 }
 
@@ -326,10 +352,15 @@ footer p a {
   button:active {
     background-color: #0f0f0f69;
   }
-  .nav-item, .nav-item i, .second-line span {
+  /* .nav-item, .nav-item i {
     color: #f6f6f6;
+  } */
+  /* #titlebar-save i {
+    color: #4d8edc;
   }
-
+  #titlebar-load i {
+    color: #dbc44d;
+  } */
   .dropdown-list {
     background: rgb(56, 56, 56);
   }

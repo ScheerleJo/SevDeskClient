@@ -1,3 +1,5 @@
+const { show, hide } = require("@tauri-apps/api/app");
+
 DocumentType = module;
 
 const { invoke } = window.__TAURI__.tauri;
@@ -13,6 +15,7 @@ module.exports = {
   loadData,
   showMessage,
   createLatexFile,
+  loadCurrentState,
   saveCurrentState,
   showSetAuthToken,
   showSetConnection,
@@ -30,10 +33,7 @@ function hideElement(elementID) {
   element.style.display = "none";
 }
 
-function showMessage (Message) {
-  document.getElementById('status-content').innerHTML = Message;
-  showElement('status-container');
-}
+
 
 function toggleCaret(elementID) {
   let anchorCaret = document.getElementById(elementID);
@@ -48,28 +48,48 @@ function toggleCaret(elementID) {
 //#endregion
 
 function loadData() {
+  let url = document.getElementById('server-connection').innerHTML;
   document.getElementById('input-year').value = new Date().getFullYear() - 1;
-  let url = document.getElementById('server-connection').innerHTML +'/api/loadData';
-  fetch(url).then(response => response.json()).then(data => {
+
+  document.body.style.cursor = "progress";
+  fetch(url + '/ping').then(response => response.json()).then(data => {
     setTimeout(() => {
-      if(data.data) {
-        createTableBody(data.data);
-        document.getElementById('donatorData-storage').innerHTML = JSON.stringify(data);
-        document.getElementById('input-year').value = data.year
-        showMessage(`<p id="status-info">Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.</p>`);
+      document.body.style.cursor = "default";
+      if(data.status == 'pong') {
+        document.getElementById('server-text').innerHTML = 'Server ist erreichbar';
+        document.getElementById('server-indicator').setAttribute('style', 'color:rgb(72, 198, 9)');
+        
+        document.body.style.cursor = "progress";
+        fetch(url + '/api/loadData').then(response => response.json()).then(data => {
+          setTimeout(() => {
+            document.body.style.cursor = "default";
+            if(data.data) {
+              createTableBody(data.data);
+              showMessage(`<p id="status-info">Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.</p>`);
+            }
+          }, 100);
+        });
       }
+
     }, 100);
+  }).catch(error => {
+    document.body.style.cursor = "default";
+    document.getElementById('server-text').innerHTML = 'Server nicht erreichbar';
+    document.getElementById('server-indicator').setAttribute('style', 'color: #FF5D55');
   });
+  
 }
 
 function fetchNewData() {
   let year = document.getElementById('input-year').value;
   let url = document.getElementById('server-connection').innerHTML +'/api/fetchNew?year=' + year;
+  document.body.style.cursor = "progress";
   fetch(url).then(response => response.json()).then(data => {
     setTimeout(() => {
       if (data.data) createTableBody(data.data);
-      document.getElementById('donatorData-storage').innerHTML = JSON.stringify(data);
       showMessage(`<p id="status-info">${Object.keys(data.data).length} neue Elemente aus dem Jahr ${year} wurden hinzugefügt</p>`);
+      document.body.style.cursor = "default";
+
     }, 100);
   });
 }
@@ -89,7 +109,7 @@ function createDonatorTr(userID, element) {
   let tr = document.createElement('tr');
   tr.setAttribute('class', 'donator-autocreate-tr');
   tr.setAttribute('id', `donator-${userID}`);
-  for (let j = 0; j < 11; j++) {
+  for (let j = 0; j < 12; j++) {
     let td = document.createElement('td');
     td.setAttribute('class', `donator-element-${userID}`);
     switch (j) {
@@ -130,10 +150,16 @@ function createDonatorTr(userID, element) {
         td.setAttribute('class', 'donator-element-' + userID);
         let button = document.createElement('button');
         button.setAttribute('onclick', `refetchDonator(${userID})`);
-        button.appendChild(document.createTextNode('Zurücksetzen'));
+        button.appendChild(document.createElement('i')).setAttribute('class', 'fa-solid fa-rotate-right');
         td.appendChild(button);
         break;
-        //TODO: Add Button to create refetch
+      case 11:
+        td.setAttribute('class', 'donator-element-' + userID);
+        let button2 = document.createElement('button');
+        button2.setAttribute('onclick', `deleteDonator(${userID})`);
+        button2.appendChild(document.createElement('i')).setAttribute('class', 'fa-solid fa-trash');
+        td.appendChild(button2);
+        break;
     }
     tr.appendChild(td);
   }
@@ -173,7 +199,11 @@ function createDonatorStatus(element) {
 }
 function createDonatorAddressSpan(address) {
   let span = document.createElement('span');
-  span.appendChild(document.createTextNode(address.street +'\n' + address.zip + ' ' + address.city  + '\n' +  address.country));
+  let street = address.street ||'';
+  let zip = address.zip || '';
+  let city = address.city || '';
+  let country = address.country || '';
+  span.appendChild(document.createTextNode(street +'\n' + zip + ' ' + city + '\n' + country));
   span.setAttribute('style', 'white-space: pre-wrap; word-wrap: break-word;');
   return span;
 }
@@ -196,9 +226,10 @@ function changeStatus(userID) {
     icon.setAttribute('style', 'color: #FEC63D');
     status = 'unchecked';
   }
-  let url = document.getElementById('server-connection').innerHTML +'/api/moveDonator?donatorIDs=' + userID + '&status=' + status;
+  let url = document.getElementById('server-connection').innerHTML +'/api/moveDonator?donatorID=' + userID + '&status=' + status;
+  document.body.style.cursor = "progress";
   fetch(url).then(response => response.json()).then(data => {
-    document.getElementById('donatorData-storage').innerHTML = JSON.stringify(data);
+    document.body.style.cursor = "default";
   });
 }
 /**
@@ -255,10 +286,26 @@ function createDonationTd(donationElement) {
 
 
 function saveCurrentState() {
+  document.body.style.cursor = "progress";
   fetch(document.getElementById('server-connection').innerHTML +'/api/saveData').then(response => response.json()).then(data => {
+    document.body.style.cursor = "default";
     setTimeout(() => {
+      if(data.status == 201) showMessage(`<p id="status-info">Aktueller Status wurde erfolgreich gespeichert!</p>`);
+      else showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}</p>`);
+    }, 100);
+  }).catch(error => {
+    document.body.style.cursor = "default";
+    showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
+  });
+}
+
+function setAuthToken(token) {
+  document.body.style.cursor = "progress";
+  fetch(`${document.getElementById('server-connection').innerHTML}/api/saveToken?token=${token}`).then(response => response.json()).then(data => {
+    setTimeout(() => {
+      document.body.style.cursor = "default";
       try {
-        if(data.Status == 201) showMessage(`<p id="status-info">Aktueller Status wurde gespeichert und wird beim nächsten Neustart automatisch neu geladen</p>`);
+        if(data.Status == 200) showMessage(`<p id="status-info">Das Token wurde gespeichert!</p>`);
         else showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}</p>`);
       } catch(error) {
         showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
@@ -267,7 +314,138 @@ function saveCurrentState() {
   });
 }
 
+function setConnection() {
+  let ipAddress = document.getElementById('input-connection').value;
+  try {
+    fetch(`${ipAddress}/ping`).then(response => response.json()).then(data => {
+      if(data.Status == 'pong') {
+        document.getElementById('server-connection').innerHTML = ipAddress;
+        showMessage(`<p id="status-info">Die Verbindung wurde erfolgreich gespeichert!</p>`);
+      }
+    });
+  } catch(error) {
+    showMessage(`<p id="status-info">Beim Verbindungsaufbau zum Server ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
+  }
+}
+
+function refetchDonator(userID) {
+  console.log('refetching: ' + userID);
+  let url = document.getElementById('server-connection').innerHTML + '/api/refetchDonator?donatorID=' + userID;
+  
+  document.body.style.cursor = "progress";
+  fetch(url).then(response => response.json()).then(data => {
+    setTimeout(() => {
+      document.body.style.cursor = "default";
+      if(data.data) {
+        document.getElementById(`donator-${userID}`).replaceWith(createDonatorTr(userID, data.data[userID]));
+        document.getElementById(`donation-tr-${userID}`).replaceWith(createDonationTable(data.data[userID].donations, userID));
+        showMessage(`<p id="status-info">Der Spender ${data.data.familyname} ${data.data.surename} wurde aktualisiert</p>`);
+      }
+    }, 100);
+  });
+}
+
+function deleteDonator(userID) {
+  console.log('deleting: ' + userID);
+  let url = document.getElementById('server-connection').innerHTML + '/api/deleteDonator?donatorID=' + userID;
+  document.body.style.cursor = "progress";
+  fetch(url).then(response => response.json()).then(data => {
+    setTimeout(() => {
+      document.body.style.cursor = "default";
+      if(data.data) {
+        document.getElementById(`donator-${userID}`).remove();
+        document.getElementById(`donation-tr-${userID}`).remove();
+        showMessage(`<p id="status-info">Der Spender ${data.data.familyname} ${data.data.surename} wurde gelöscht</p>`);
+      }
+    }, 100);
+  });
+}
+
+
+function downloadTex() {
+  console.log('downloading tex file');
+  document.body.style.cursor = "progress";
+  fetch(document.getElementById('server-connection').innerHTML + '/api/getLatex').then(response => {
+    document.body.style.cursor = "default";
+    return response.blob();
+  }).then(blob => {
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'test.tex';
+      a.click();
+  });
+}
+function fetchSavedState() {
+  console.log('fetching last saved state');
+  document.body.style.cursor = "progress";
+  fetch(document.getElementById('server-connection').innerHTML +'/api/loadDataFromFile').then(response => response.json()).then(data => {
+    setTimeout(() => {
+      document.body.style.cursor = "default";
+      if(data.data) {
+        createTableBody(data.data);
+        showMessage(`<p id="status-info">Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.</p>`);
+      }
+
+    }, 100);
+  }).catch(error => {
+    showMessage(`<p id="status-info">Beim Laden ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
+    document.body.style.cursor = "default";
+  });
+}
+
+function loadCurrentState() {
+  YesNoMessageBox('Soll der aktuelle Stand wirklich mit dem zuletzt gespeicherten Stand überschrieben werden?', 'fetchSavedState()', 'hideElement("status-container")');
+}
+
+//#region MESSAGES
+function showMessage (message) {
+  document.getElementById('status-content').innerHTML = message;
+  showElement('status-container');
+}
+function hideMessage() {
+  hideElement('status-container');
+}
+
+function YesNoMessageBox (question, yesAction, noAction){
+  let message = document.createElement('div')
+  let p = document.createElement('p')
+  p.appendChild(document.createTextNode(question))
+  let buttonYes = document.createElement('button');
+  buttonYes.setAttribute('onclick', yesAction);
+  buttonYes.appendChild(document.createTextNode('Ja'));
+  let buttonNo = document.createElement('button');
+  buttonNo.setAttribute('onclick', noAction);
+  buttonNo.appendChild(document.createTextNode('Nein'));
+  message.appendChild(p);
+  message.appendChild(buttonYes);
+  message.appendChild(buttonNo);
+  showMessage(message.innerHTML);
+}
+
+function InputMessageBox(question, placeholderText, buttonText, buttonAction) {
+  let message = document.createElement('div')
+  let button = document.createElement('button');
+  button.setAttribute('onclick', 'triggerStatusButton(buttonAction)');
+  button.appendChild(document.createTextNode(buttonText));
+  let input = document.createElement('input');
+  input.setAttribute('id', 'status-input');
+  input.setAttribute('placeholder', placeholderText);
+  let p = document.createElement('p');
+  p.appendChild(document.createTextNode(question))
+  message.appendChild(p);
+  message.appendChild(input);
+  message.appendChild(button);
+  showMessage(message.innerHTML);
+}
+function triggerStatusButton(buttonAction) {
+  let input = document.getElementById('status-input').value;
+  let functionText = ;
+  eval(buttonAction.replace('()', '') `('${input}')`);
+}
+
 function showSetAuthToken(){
+  InputMessageBox('Hier den API-Schlüssel aus SevDesk einfügen:', 'API-Schlüssel eingeben', 'Schlüssel speichern', 'setAuthToken()');
   let message = document.createElement('div')
   let button = document.createElement('button');
   button.setAttribute('onclick', 'setAuthToken()');
@@ -294,36 +472,11 @@ function showSetConnection() {
   input.setAttribute('placeholder', 'Server-URL eingeben');
   let p = document.createElement('p');
   p.setAttribute('id', 'connection-info');
-  p.appendChild(document.createTextNode('Hier die Server-URL ( IP-Adresse des Raspberry-Pi ) einfügen:'))
+  p.appendChild(document.createTextNode('Hier die Server-URL (z.b. http://raspberry:8040 oder http://192.168.1.20:8040) eingeben:'))
+  p.appendChild(document.createTextNode('Standardmäßig ist die URL auf http://raspberry:8040 gesetzt, sodass sie direkt funktionieren sollte.'));
   message.appendChild(p);
   message.appendChild(input);
   message.appendChild(button);
   showMessage(message.innerHTML);
 }
-
-function setAuthToken() {
-  fetch(`${document.getElementById('server-connection').innerHTML}/api/saveToken?token=${document.getElementById('input-authKey').value}`).then(response => response.json()).then(data => {
-    setTimeout(() => {
-      try {
-        if(data.Status == 200) showMessage(`<p id="status-info">Das Token wurde gespeichert</p>`);
-        else showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}</p>`);
-      } catch(error) {
-        showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
-      }
-    }, 100);
-  });
-}
-
-function setConnection() {
-  let ipAddress = document.getElementById('input-connection').value;
-  try {
-    fetch(`http://${ipAddress}:8040/ping`).then(response => response.json()).then(data => {
-      if(data.Status == 'pong') {
-        document.getElementById('server-connection').innerHTML = `http://${ipAddress}:8040`;
-        showMessage(`<p id="status-info">Die Verbindung wurde erfolgreich gespeichert</p>`);
-      }
-    });
-  } catch(error) {
-    showMessage(`<p id="status-info">Beim Verbindungsaufbau zum Server ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
-  }
-}
+//#endregion

@@ -15,17 +15,19 @@
         <nav data-tauri-drag-region class="navbar" id="head">
             <ul class="nav-list" id="ul-home">
                 <!-- <li class="nav-item" id="titlebar-home"><a href="#" onclick="setStartStatus()"><i class="fa-solid fa-house"></i></a></li> -->
-                <li class=" nav-item" id="titlebar-settings">
+                <li class="nav-item" id="titlebar-help"><a><i class="fa-solid fa-question"></i>Hilfe</a></li>
+                <li class="nav-item" id="titlebar-settings">
                     <a><i class="fa-solid fa-gear"></i> Einstellungen</a>
                     <ul class="dropdown-list">
                         <li><a onclick="showSetAuthToken()"><i class="fa-solid fa-key"></i> Authorisierungs-Token</a></li>
                         <li><a onclick="showSetConnection()"> <i class="fa-solid fa-network-wired"></i> Server-verbindung</a></li>
-                        <!-- <li><a href="#"><i id="server-status" class="fa-solid fa-power-off"></i> Server starten/stoppen</a></li> -->
                         <!-- <li><a href="#"><i class="fa-solid fa-file"></i> Standard .tex Vorlage</a></li> -->
                     </ul> 
                 </li>  
-                <!-- <li class="nav-item" id="titlebar-help"><a href="#">Hilfe <i class="fa-solid fa-question"></i></a></li> -->
-                <li class="nav-item nav-button "><button onclick="saveCurrentState()">Aktuellen Stand speichern</button></li>
+                <li class="nav-item" id="titlebar-save"><a onclick="saveCurrentState()"><i class="fa-solid fa-floppy-disk"></i>Speichern</a></li>
+                <li class="nav-item" id="titlebar-load"><a onclick="loadCurrentState()"><i class="fa-solid fa-folder-open"></i>Laden</a></li>
+                <li class="nav-item nav-button "></li>
+                <li class="nav-item" id="server-status"><i id="server-indicator" class="fa-solid fa-power-off"></i><p id="server-text">Server nicht erreichbar</p></li> 
             </ul>
         </nav>
     </div>
@@ -59,6 +61,7 @@
                     <th><span>Geprüft</span></th>
                     <th>Bescheinigung erstellen</th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="autocreate-table-body">
@@ -76,35 +79,9 @@
     </footer>
 </body>
 
-<script>
-
-// import { exists, BaseDirectory, createDir, createFile, writeFile, readFile } from '@tauri-apps/api/fs';
-// async function createConfigFile() {
-//   // let path = await BaseDirectory.Download + '/config.json';
-//     let content = { 'server': 'http://' + connection }
-//   // await writeTextFile(path, JSON.stringify(content), { dir: BaseDirectory.Download });
-//     await createDir('users', { dir: BaseDirectory.Download, recursive: false });
-// }
-
-function downloadTex() {
-    fetch('http://localhost:8040/getLatex').then(response => {
-        return response.blob();
-    }).then(blob => {
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'test.tex';
-        a.click();
-    });
-}
-
-
-</script>
-
-
 <script src="main.js">
     loadData();
 </script>
 <p style="display: none;" id="server-connection">http://localhost:8040</p>
-<p style="display: none;" id="donatorData-storage"></p>
+<!-- <p style="display: none;" id="donatorData-storage"></p> -->
 </html>
