@@ -1,12 +1,4 @@
-const { show, hide } = require("@tauri-apps/api/app");
-
 DocumentType = module;
-
-const { invoke } = window.__TAURI__.tauri;
-// const { BaseDirectory } = window.__TAURI__.fs;
-// const { downloadDir } = window.__TAURI__.path
-// const { exists, BaseDirectory, createDir, createFile, writeFile, readFile } = window.__TAURI__.fs;
-// // import {BaseDirectory} from '@tauri-apps/api/fs';
 
 module.exports = {
   toggleCaret,
@@ -65,7 +57,7 @@ function loadData() {
             document.body.style.cursor = "default";
             if(data.data) {
               createTableBody(data.data);
-              showMessage(`<p id="status-info">Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.</p>`);
+              InfoMessageBox(`Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.`);
             }
           }, 100);
         });
@@ -87,9 +79,8 @@ function fetchNewData() {
   fetch(url).then(response => response.json()).then(data => {
     setTimeout(() => {
       if (data.data) createTableBody(data.data);
-      showMessage(`<p id="status-info">${Object.keys(data.data).length} neue Elemente aus dem Jahr ${year} wurden hinzugefügt</p>`);
+      InfoMessageBox(`` + Object.keys(data.data).length + ` neue Elemente aus dem Jahr ${year} wurden hinzugefügt`);
       document.body.style.cursor = "default";
-
     }, 100);
   });
 }
@@ -149,14 +140,14 @@ function createDonatorTr(userID, element) {
       case 10:
         td.setAttribute('class', 'donator-element-' + userID);
         let button = document.createElement('button');
-        button.setAttribute('onclick', `refetchDonator(${userID})`);
+        button.setAttribute('onclick', `askRefetchDonator(${userID})`);
         button.appendChild(document.createElement('i')).setAttribute('class', 'fa-solid fa-rotate-right');
         td.appendChild(button);
         break;
       case 11:
         td.setAttribute('class', 'donator-element-' + userID);
         let button2 = document.createElement('button');
-        button2.setAttribute('onclick', `deleteDonator(${userID})`);
+        button2.setAttribute('onclick', `askDeleteDonator(${userID})`);
         button2.appendChild(document.createElement('i')).setAttribute('class', 'fa-solid fa-trash');
         td.appendChild(button2);
         break;
@@ -290,25 +281,26 @@ function saveCurrentState() {
   fetch(document.getElementById('server-connection').innerHTML +'/api/saveData').then(response => response.json()).then(data => {
     document.body.style.cursor = "default";
     setTimeout(() => {
-      if(data.status == 201) showMessage(`<p id="status-info">Aktueller Status wurde erfolgreich gespeichert!</p>`);
-      else showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}</p>`);
+      if(data.status == 201) InfoMessageBox(`Aktueller Status wurde erfolgreich gespeichert!`);
+      else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}`);
     }, 100);
   }).catch(error => {
     document.body.style.cursor = "default";
-    showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
+    InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}`);
   });
 }
 
 function setAuthToken(token) {
+  console.log(token);
   document.body.style.cursor = "progress";
   fetch(`${document.getElementById('server-connection').innerHTML}/api/saveToken?token=${token}`).then(response => response.json()).then(data => {
     setTimeout(() => {
       document.body.style.cursor = "default";
       try {
-        if(data.Status == 200) showMessage(`<p id="status-info">Das Token wurde gespeichert!</p>`);
-        else showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}</p>`);
+        if(data.Status == 200) InfoMessageBox('Das Token wurde gespeichert!');
+        else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}`);
       } catch(error) {
-        showMessage(`<p id="status-info">Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
+        InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}`);
       }
     }, 100);
   });
@@ -320,11 +312,11 @@ function setConnection() {
     fetch(`${ipAddress}/ping`).then(response => response.json()).then(data => {
       if(data.Status == 'pong') {
         document.getElementById('server-connection').innerHTML = ipAddress;
-        showMessage(`<p id="status-info">Die Verbindung wurde erfolgreich gespeichert!</p>`);
+        InfoMessageBox('Die Verbindung wurde erfolgreich gespeichert!');
       }
     });
   } catch(error) {
-    showMessage(`<p id="status-info">Beim Verbindungsaufbau zum Server ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
+    InfoMessageBox(`Beim Verbindungsaufbau zum Server ist etwas schiefgelaufen: \n BackEnd: ${error}`);
   }
 }
 
@@ -339,7 +331,7 @@ function refetchDonator(userID) {
       if(data.data) {
         document.getElementById(`donator-${userID}`).replaceWith(createDonatorTr(userID, data.data[userID]));
         document.getElementById(`donation-tr-${userID}`).replaceWith(createDonationTable(data.data[userID].donations, userID));
-        showMessage(`<p id="status-info">Der Spender ${data.data.familyname} ${data.data.surename} wurde aktualisiert</p>`);
+        InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde aktualisiert`);
       }
     }, 100);
   });
@@ -355,7 +347,7 @@ function deleteDonator(userID) {
       if(data.data) {
         document.getElementById(`donator-${userID}`).remove();
         document.getElementById(`donation-tr-${userID}`).remove();
-        showMessage(`<p id="status-info">Der Spender ${data.data.familyname} ${data.data.surename} wurde gelöscht</p>`);
+        InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde gelöscht`);
       }
     }, 100);
   });
@@ -384,30 +376,29 @@ function fetchSavedState() {
       document.body.style.cursor = "default";
       if(data.data) {
         createTableBody(data.data);
-        showMessage(`<p id="status-info">Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.</p>`);
+        InfoMessageBox(`Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.`);
       }
-
     }, 100);
   }).catch(error => {
-    showMessage(`<p id="status-info">Beim Laden ist etwas schiefgelaufen: \n BackEnd: ${error}</p>`);
+    InfoMessageBox(`Beim Laden ist etwas schiefgelaufen: \n BackEnd: ${error}`);
     document.body.style.cursor = "default";
   });
 }
 
-function loadCurrentState() {
-  YesNoMessageBox('Soll der aktuelle Stand wirklich mit dem zuletzt gespeicherten Stand überschrieben werden?', 'fetchSavedState()', 'hideElement("status-container")');
-}
 
 //#region MESSAGES
 function showMessage (message) {
   document.getElementById('status-content').innerHTML = message;
   showElement('status-container');
 }
-function hideMessage() {
-  hideElement('status-container');
+function InfoMessageBox (message) {
+  let messageBox = document.createElement('div');
+  let p = document.createElement('p');
+  p.appendChild(document.createTextNode(message));
+  messageBox.appendChild(p);
+  showMessage(messageBox.innerHTML);
 }
-
-function YesNoMessageBox (question, yesAction, noAction){
+function YesNoMessageBox (question, yesAction, noAction = undefined){
   let message = document.createElement('div')
   let p = document.createElement('p')
   p.appendChild(document.createTextNode(question))
@@ -415,7 +406,7 @@ function YesNoMessageBox (question, yesAction, noAction){
   buttonYes.setAttribute('onclick', yesAction);
   buttonYes.appendChild(document.createTextNode('Ja'));
   let buttonNo = document.createElement('button');
-  buttonNo.setAttribute('onclick', noAction);
+  buttonNo.setAttribute('onclick', noAction || 'hideElement("status-container")');
   buttonNo.appendChild(document.createTextNode('Nein'));
   message.appendChild(p);
   message.appendChild(buttonYes);
@@ -426,7 +417,7 @@ function YesNoMessageBox (question, yesAction, noAction){
 function InputMessageBox(question, placeholderText, buttonText, buttonAction) {
   let message = document.createElement('div')
   let button = document.createElement('button');
-  button.setAttribute('onclick', 'triggerStatusButton(buttonAction)');
+  button.setAttribute('onclick', buttonAction.replace(')','') + 'document.getElementById("status-input").value' + ')');
   button.appendChild(document.createTextNode(buttonText));
   let input = document.createElement('input');
   input.setAttribute('id', 'status-input');
@@ -438,45 +429,20 @@ function InputMessageBox(question, placeholderText, buttonText, buttonAction) {
   message.appendChild(button);
   showMessage(message.innerHTML);
 }
-function triggerStatusButton(buttonAction) {
-  let input = document.getElementById('status-input').value;
-  let functionText = ;
-  eval(buttonAction.replace('()', '') `('${input}')`);
+function askRefetchDonator(userID) {
+  
+  YesNoMessageBox('Soll der Spender wirklich neu von SevDesk abgefragt und der aktuelle Stand überschrieben werden?', 'refetchDonator(' + userID + ')');
 }
-
+function askRefetchDonator(userID) {
+  YesNoMessageBox('Soll der Spender wirklich gelöscht werden werden?', 'deleteDonator(' + userID + ')');
+}
+function loadCurrentState() {
+  YesNoMessageBox('Soll der aktuelle Stand wirklich mit dem zuletzt gespeicherten Stand überschrieben werden?', 'fetchSavedState()');
+}
 function showSetAuthToken(){
   InputMessageBox('Hier den API-Schlüssel aus SevDesk einfügen:', 'API-Schlüssel eingeben', 'Schlüssel speichern', 'setAuthToken()');
-  let message = document.createElement('div')
-  let button = document.createElement('button');
-  button.setAttribute('onclick', 'setAuthToken()');
-  button.appendChild(document.createTextNode('Schlüssel speichern'));
-  let input = document.createElement('input');
-  input.setAttribute('id', 'input-authKey');
-  input.setAttribute('placeholder', 'API-Schlüssel eingeben');
-  let p = document.createElement('p');
-  p.setAttribute('id', 'auth-info');
-  p.appendChild(document.createTextNode('Hier den API-Schlüssel aus SevDesk einfügen:'))
-  message.appendChild(p);
-  message.appendChild(input);
-  message.appendChild(button);
-  showMessage(message.innerHTML);
 }
-
 function showSetConnection() {
-  let message = document.createElement('div')
-  let button = document.createElement('button');
-  button.setAttribute('onclick', 'setConnection()');
-  button.appendChild(document.createTextNode('Verbindung speichern'));
-  let input = document.createElement('input');
-  input.setAttribute('id', 'input-connection');
-  input.setAttribute('placeholder', 'Server-URL eingeben');
-  let p = document.createElement('p');
-  p.setAttribute('id', 'connection-info');
-  p.appendChild(document.createTextNode('Hier die Server-URL (z.b. http://raspberry:8040 oder http://192.168.1.20:8040) eingeben:'))
-  p.appendChild(document.createTextNode('Standardmäßig ist die URL auf http://raspberry:8040 gesetzt, sodass sie direkt funktionieren sollte.'));
-  message.appendChild(p);
-  message.appendChild(input);
-  message.appendChild(button);
-  showMessage(message.innerHTML);
+  InputMessageBox('Hier die Server-URL (z.b. http://raspberry:8040 oder http://192.168.1.20:8040) eingeben. (Standardmäßig http://raspberry:8040, sodass es direkt funktionieren sollte.)', 'Server-URL eingeben', 'Verbindung speichern', 'setConnection()');
 }
 //#endregion

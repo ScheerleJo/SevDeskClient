@@ -33,16 +33,28 @@
     </div>
     <div class="body-wrapper">
         <div class="container"id="status-container" style="display: none;">
-                <div class="inline" id="status-content">
-                    
-                </div>
-                <a class="inline" href="#" onclick="hideElement('status-container')" id="close-status"><i class="fa-solid fa-x"></i></a>
+                <div id="status-content"></div>
+                <a href="#" onclick="hideElement('status-container')" id="close-status"><i class="fa-solid fa-x"></i></a>
         </div>
-        <div class="container">
-            <!-- <p class="second-line">Willkommen bei der automatsierten Erstellung von Spendenbescheinigungen der Theologischen Fernschule e.V.</p> -->
-            <div>
-                <p class="inline">Jahr auswählen:</p>
-                <input class="inline" type="number" name="year" id="input-year" placeholder="Jahr eingeben">
+        <div class="container" id="info-container">
+            <div class ="info-content">
+                <input type="number" name="year" id="input-year">
+                <p>Jahr</p>
+            </div>
+            <div class ="info-content">
+                <input type="number" name="year" id="input-all-donations"readonly>
+                <p>gesamte Spenden</p>
+            </div>
+            <div class ="info-content">
+                <input type="number" name="year" id="input-all-donator"  readonly>
+                <p>Anzahl Spender</p>
+            </div>
+            <div class ="info-content">
+                <div class="input-wrapper">
+                    <input name="year" id="input-checked">
+                    <input name="year" id="input-checkedNotInPool">
+                </div>
+                <p>Geprüfte Spender</p>
             </div>
         </div>
         <table id="autocreate-table">
@@ -83,5 +95,4 @@
     loadData();
 </script>
 <p style="display: none;" id="server-connection">http://localhost:8040</p>
-<!-- <p style="display: none;" id="donatorData-storage"></p> -->
 </html>

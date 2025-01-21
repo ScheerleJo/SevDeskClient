@@ -83,7 +83,33 @@ a {
   border: #67777e 1px solid;
   width: 95%;
 }
+#info-container {
 
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.info-content {
+  margin: 0 10px;
+  display: flex;
+  flex-direction: column;
+}
+.info-content p, .info-content input {
+  margin: 0;
+}
+.info-content input {
+  width: 80%;
+}
+.input-wrapper {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+  padding: 0;
+
+}
+.input-wrapper input {
+  width: 30%
+}
 .body-wrapper {
   display: flex;
   flex-direction: column;
