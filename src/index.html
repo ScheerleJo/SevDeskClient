@@ -26,7 +26,6 @@
                 </li>  
                 <li class="nav-item" id="titlebar-save"><a onclick="saveCurrentState()"><i class="fa-solid fa-floppy-disk"></i>Speichern</a></li>
                 <li class="nav-item" id="titlebar-load"><a onclick="loadCurrentState()"><i class="fa-solid fa-folder-open"></i>Laden</a></li>
-                <li class="nav-item nav-button "></li>
                 <li class="nav-item" id="server-status"><i id="server-indicator" class="fa-solid fa-power-off"></i><p id="server-text">Server nicht erreichbar</p></li> 
             </ul>
         </nav>
@@ -37,24 +36,28 @@
                 <a href="#" onclick="hideElement('status-container')" id="close-status"><i class="fa-solid fa-x"></i></a>
         </div>
         <div class="container" id="info-container">
-            <div class ="info-content">
+            <div class ="info-content" id="info-year">
                 <input type="number" name="year" id="input-year">
                 <p>Jahr</p>
             </div>
             <div class ="info-content">
-                <input type="number" name="year" id="input-all-donations"readonly>
-                <p>gesamte Spenden</p>
+                <input id="input-all-donations"readonly>
+                <p>Spenden gesamt</p>
             </div>
             <div class ="info-content">
-                <input type="number" name="year" id="input-all-donator"  readonly>
-                <p>Anzahl Spender</p>
+                <input type="number" id="input-all-donators"  readonly>
+                <p>Spender</p>
             </div>
             <div class ="info-content">
                 <div class="input-wrapper">
-                    <input name="year" id="input-checked">
-                    <input name="year" id="input-checkedNotInPool">
+                    <input id="input-checked" style="margin-right: 10px;">
+                    <input id="input-checkedNotInPool">
                 </div>
-                <p>Geprüfte Spender</p>
+                <div class="input-wrapper">
+                    <p>geprüft</p>
+                    <p>/</p>
+                    <p>nicht</p>
+                </div>
             </div>
         </div>
         <table id="autocreate-table">
@@ -81,8 +84,7 @@
         </table>
         <div class="button-wrapper">
             <button onclick="fetchNewData()">Daten neu abfragen</button>
-            <button onclick="downloadTex()">Test</button>
-            <button id="move-button" class="table-button" onclick="createLatexFile()">Bescheinigungen erstellen</button>
+            <button id="move-button" class="table-button" onclick="downloadLatexFile()">Bescheinigungen erstellen</button>
 
         </div>
     </div>
@@ -94,5 +96,6 @@
 <script src="main.js">
     loadData();
 </script>
-<p style="display: none;" id="server-connection">http://localhost:8040</p>
+<p style="display: none;" id="server-connection">http://raspberry:8040</p>
+<p style="display: none;" id="server-status-boolean">0</p>
 </html>

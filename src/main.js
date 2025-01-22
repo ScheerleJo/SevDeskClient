@@ -3,16 +3,12 @@ DocumentType = module;
 module.exports = {
   toggleCaret,
   fetchNewData,
-  showTable,
   loadData,
-  showMessage,
-  createLatexFile,
+  downloadLatexFile,
   loadCurrentState,
   saveCurrentState,
   showSetAuthToken,
-  showSetConnection,
-  setAuthToken,
-  setConnection,
+  showSetConnection
 }
 
 //#region UTILITY
@@ -24,8 +20,6 @@ function hideElement(elementID) {
   let element = document.getElementById(elementID);
   element.style.display = "none";
 }
-
-
 
 function toggleCaret(elementID) {
   let anchorCaret = document.getElementById(elementID);
@@ -40,48 +34,37 @@ function toggleCaret(elementID) {
 //#endregion
 
 function loadData() {
-  let url = document.getElementById('server-connection').innerHTML;
   document.getElementById('input-year').value = new Date().getFullYear() - 1;
 
   document.body.style.cursor = "progress";
-  fetch(url + '/ping').then(response => response.json()).then(data => {
-    setTimeout(() => {
-      document.body.style.cursor = "default";
-      if(data.status == 'pong') {
-        document.getElementById('server-text').innerHTML = 'Server ist erreichbar';
-        document.getElementById('server-indicator').setAttribute('style', 'color:rgb(72, 198, 9)');
-        
-        document.body.style.cursor = "progress";
-        fetch(url + '/api/loadData').then(response => response.json()).then(data => {
-          setTimeout(() => {
-            document.body.style.cursor = "default";
-            if(data.data) {
-              createTableBody(data.data);
-              InfoMessageBox(`Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.`);
-            }
-          }, 100);
-        });
-      }
-
-    }, 100);
+  fetchFromServer(getServerUrl() + '/ping', true).then(data => {
+    if(data.status == 'pong') {
+      setServerStatus(true);
+      fetchFromServer('/api/loadData').then(data => {
+        if(data.data) {
+          createTableBody(data.data);
+          InfoMessageBox(`Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.`);
+        }
+      });
+    } else setServerStatus(false);
   }).catch(error => {
-    document.body.style.cursor = "default";
-    document.getElementById('server-text').innerHTML = 'Server nicht erreichbar';
-    document.getElementById('server-indicator').setAttribute('style', 'color: #FF5D55');
+    setServerStatus(false);
   });
-  
 }
 
 function fetchNewData() {
+  if(!getServerStatus()) {
+    InfoMessageBox('Der Server ist nicht erreichbar. Bitte überprüfe die Verbindung.');
+    return;
+  }
   let year = document.getElementById('input-year').value;
-  let url = document.getElementById('server-connection').innerHTML +'/api/fetchNew?year=' + year;
-  document.body.style.cursor = "progress";
-  fetch(url).then(response => response.json()).then(data => {
-    setTimeout(() => {
-      if (data.data) createTableBody(data.data);
+  fetchFromServer('/api/fetchNew?year=' + year).then(data => {
+    if(data.error) {
+      InfoMessageBox(`Beim Abrufen der Daten ist etwas schiefgelaufen: \n BackEnd: ${data.error}`);
+    }else if (data.data){
+      createTableBody(data.data);
       InfoMessageBox(`` + Object.keys(data.data).length + ` neue Elemente aus dem Jahr ${year} wurden hinzugefügt`);
-      document.body.style.cursor = "default";
-    }, 100);
+    }
   });
 }
 
@@ -118,7 +101,7 @@ function createDonatorTr(userID, element) {
       case 3: td.appendChild(createDonatorSpan((element.academicTitle == '' ? '' : element.academicTitle + ' ') + element.surename)); break;
       case 4: td.appendChild(createDonatorAddressSpan(element.address)); break;
       case 5: td.appendChild(createDonatorSpan(element.donations.length)); break;
-      case 6: td.appendChild(createDonatorSpan(element.totalSum)); break;
+      case 6: td.appendChild(createDonatorSpan(element.formattedSum)); break;
       case 7: td.appendChild(createDonatorSpan(element.sumInWords)); break;
       case 8:
         td.setAttribute('class', 'donator-element-' + userID);
@@ -126,6 +109,7 @@ function createDonatorTr(userID, element) {
         input.setAttribute('type', 'checkbox');
         input.setAttribute('id', `checked-${userID}`);
         input.setAttribute('onclick', `changeStatus(${userID})`);
+        if(element.status == 'checked' || element.status == 'checkedNotInPool' || element.status == 'done') input.setAttribute('checked', 'true');
         td.appendChild(input);
         break;
       case 9: 
@@ -134,7 +118,7 @@ function createDonatorTr(userID, element) {
         input2.setAttribute('type', 'checkbox');
         input2.setAttribute('id', `create-${userID}`);
         input2.setAttribute('onclick', `changeStatus(${userID})`);
-        input2.setAttribute('checked', 'true');
+        if(element.status != 'checkedNotInPool') input2.setAttribute('checked', 'true');
         td.appendChild(input2);
         break;
       case 10:
@@ -216,11 +200,9 @@ function changeStatus(userID) {
     icon.setAttribute('class', 'fa-lg fa-solid fa-triangle-exclamation');
     icon.setAttribute('style', 'color: #FEC63D');
     status = 'unchecked';
-  }
-  let url = document.getElementById('server-connection').innerHTML +'/api/moveDonator?donatorID=' + userID + '&status=' + status;
-  document.body.style.cursor = "progress";
-  fetch(url).then(response => response.json()).then(data => {
-    document.body.style.cursor = "default";
+  }  
+  fetchFromServer('/api/moveDonator?donatorID=' + userID + '&status=' + status).then(data => {
+    if(!data.data == 200) InfoMessageBox(`Beim Ändern des Status ist etwas schiefgelaufen: \n BackEnd: ${data}`);
   });
 }
 /**
@@ -275,116 +257,127 @@ function createDonationTd(donationElement) {
   return innerTd
 }
 
-
 function saveCurrentState() {
   document.body.style.cursor = "progress";
-  fetch(document.getElementById('server-connection').innerHTML +'/api/saveData').then(response => response.json()).then(data => {
-    document.body.style.cursor = "default";
-    setTimeout(() => {
-      if(data.status == 201) InfoMessageBox(`Aktueller Status wurde erfolgreich gespeichert!`);
-      else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}`);
-    }, 100);
-  }).catch(error => {
-    document.body.style.cursor = "default";
-    InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}`);
+  fetchFromServer('/api/saveData').then(data => {
+    if(data.status == 201) InfoMessageBox(`Aktueller Status wurde erfolgreich gespeichert!`);
+    else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}`);
   });
 }
 
 function setAuthToken(token) {
-  console.log(token);
   document.body.style.cursor = "progress";
-  fetch(`${document.getElementById('server-connection').innerHTML}/api/saveToken?token=${token}`).then(response => response.json()).then(data => {
-    setTimeout(() => {
-      document.body.style.cursor = "default";
-      try {
-        if(data.Status == 200) InfoMessageBox('Das Token wurde gespeichert!');
-        else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}`);
-      } catch(error) {
-        InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${error}`);
-      }
-    }, 100);
+  fetchFromServer('/api/saveToken?token=' + token).then(data => {
+    if(data.status == 200) InfoMessageBox('Das Token wurde gespeichert!');
+    else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}`);
   });
 }
 
-function setConnection() {
-  let ipAddress = document.getElementById('input-connection').value;
-  try {
-    fetch(`${ipAddress}/ping`).then(response => response.json()).then(data => {
-      if(data.Status == 'pong') {
-        document.getElementById('server-connection').innerHTML = ipAddress;
-        InfoMessageBox('Die Verbindung wurde erfolgreich gespeichert!');
-      }
-    });
-  } catch(error) {
+function setConnection(url) {
+  fetchFromServer(url + '/ping', true).then(data => {
+    if(data.status == 'pong') {
+      console.log('Connection set to: ' + url);
+      document.getElementById('server-connection').innerHTML = url;
+      InfoMessageBox('Die Verbindung wurde erfolgreich gespeichert!');
+      setServerStatus(true);
+    }
+  }).catch(error => {
     InfoMessageBox(`Beim Verbindungsaufbau zum Server ist etwas schiefgelaufen: \n BackEnd: ${error}`);
-  }
+    setServerStatus(false);
+  });
 }
 
 function refetchDonator(userID) {
   console.log('refetching: ' + userID);
-  let url = document.getElementById('server-connection').innerHTML + '/api/refetchDonator?donatorID=' + userID;
-  
-  document.body.style.cursor = "progress";
-  fetch(url).then(response => response.json()).then(data => {
-    setTimeout(() => {
-      document.body.style.cursor = "default";
-      if(data.data) {
-        document.getElementById(`donator-${userID}`).replaceWith(createDonatorTr(userID, data.data[userID]));
-        document.getElementById(`donation-tr-${userID}`).replaceWith(createDonationTable(data.data[userID].donations, userID));
-        InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde aktualisiert`);
-      }
-    }, 100);
+  fetchFromServer('/api/getDonator?donatorID=' + userID).then(data => {
+    if(data.data) {
+      document.getElementById(`donator-${userID}`).replaceWith(createDonatorTr(userID, data.data[userID]));
+      document.getElementById(`donation-tr-${userID}`).replaceWith(createDonationTable(data.data[userID].donations, userID));
+      InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde aktualisiert`);
+    }
   });
 }
 
 function deleteDonator(userID) {
   console.log('deleting: ' + userID);
-  let url = document.getElementById('server-connection').innerHTML + '/api/deleteDonator?donatorID=' + userID;
-  document.body.style.cursor = "progress";
-  fetch(url).then(response => response.json()).then(data => {
-    setTimeout(() => {
-      document.body.style.cursor = "default";
-      if(data.data) {
-        document.getElementById(`donator-${userID}`).remove();
-        document.getElementById(`donation-tr-${userID}`).remove();
-        InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde gelöscht`);
-      }
-    }, 100);
+  fetchFromServer('/api/getDonator?donatorID=' + userID).then(data => {
+    if(data.data) {
+      document.getElementById(`donator-${userID}`).remove();
+      document.getElementById(`donation-tr-${userID}`).remove();
+      InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde gelöscht`);
+    }
   });
 }
 
-
-function downloadTex() {
-  console.log('downloading tex file');
-  document.body.style.cursor = "progress";
-  fetch(document.getElementById('server-connection').innerHTML + '/api/getLatex').then(response => {
-    document.body.style.cursor = "default";
-    return response.blob();
-  }).then(blob => {
-      const url = window.URL.createObjectURL(new Blob([blob]));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'test.tex';
-      a.click();
-  });
+function downloadLatexFile() {
+  fetchFromServer('/api/createLatex').then(data => {
+    if(data.status == 201) {
+      console.log('downloading tex file');
+      document.body.style.cursor = "progress";
+      fetch(getServerUrl() + '/api/getLatex').then(response => {
+        return response.blob();
+      }).then(blob => {
+          const url = window.URL.createObjectURL(new Blob([blob]));
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'bescheinigungen.tex';
+          a.click();
+      });
+    }
+  })
 }
 function fetchSavedState() {
   console.log('fetching last saved state');
-  document.body.style.cursor = "progress";
-  fetch(document.getElementById('server-connection').innerHTML +'/api/loadDataFromFile').then(response => response.json()).then(data => {
-    setTimeout(() => {
-      document.body.style.cursor = "default";
-      if(data.data) {
-        createTableBody(data.data);
-        InfoMessageBox(`Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.`);
-      }
-    }, 100);
+  fetchFromServer('/api/loadDataFromFile').then(data => {
+    if(data.data) {
+      createTableBody(data.data);
+      setInfoContainer(data);
+      InfoMessageBox(`Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.`);
+    }
   }).catch(error => {
     InfoMessageBox(`Beim Laden ist etwas schiefgelaufen: \n BackEnd: ${error}`);
     document.body.style.cursor = "default";
   });
 }
 
+function setServerStatus(running) {
+  if(running) {
+    document.getElementById('server-status-boolean').innerHTML = 1;
+    document.getElementById('server-text').innerHTML = 'Server ist erreichbar';
+    document.getElementById('server-indicator').setAttribute('style', 'color:rgb(72, 198, 9)');
+  } else {
+    document.getElementById('server-status-boolean').innerHTML = 0;
+    document.getElementById('server-text').innerHTML = 'Server nicht erreichbar';
+    document.getElementById('server-indicator').setAttribute('style', 'color: #FF5D55');
+  }
+}
+function getServerStatus() {
+  return document.getElementById('server-status-boolean').innerHTML == 1;
+}
+function getServerUrl() {
+  return document.getElementById('server-connection').innerHTML;
+}
+function setInfoContainer(data) {
+  document.getElementById('input-all-donations').value = data.additionalInfo.totalDonationSum;
+  document.getElementById('input-all-donators').value = data.additionalInfo.totalDonators;
+  document.getElementById('input-checked').value = data.additionalInfo.checkedDonators;
+  document.getElementById('input-checkedNotInPool').value = data.additionalInfo.checkedDonatorsNIP;
+}
+
+async function fetchFromServer(queryUrl, checkServer = false) {
+  if(!getServerStatus() && !checkServer) {
+    InfoMessageBox('Der Server ist nicht erreichbar. Bitte überprüfe die Verbindung.');
+    throw new Error('Server not reachable');
+  }
+  document.body.style.cursor = "progress";
+  let url = checkServer ? queryUrl : getServerUrl() +  queryUrl;
+  console.log('fetching: ' + url);
+  let response = await fetch(url);
+  let data = await response.json();
+  if(data.additionalInfo) setInfoContainer(data);
+  document.body.style.cursor = "default";
+  return data;
+}
 
 //#region MESSAGES
 function showMessage (message) {
@@ -433,7 +426,7 @@ function askRefetchDonator(userID) {
   
   YesNoMessageBox('Soll der Spender wirklich neu von SevDesk abgefragt und der aktuelle Stand überschrieben werden?', 'refetchDonator(' + userID + ')');
 }
-function askRefetchDonator(userID) {
+function askDeleteDonator(userID) {
   YesNoMessageBox('Soll der Spender wirklich gelöscht werden werden?', 'deleteDonator(' + userID + ')');
 }
 function loadCurrentState() {
