@@ -1,16 +1,9 @@
-DocumentType = module;
+// import { resolveResource } from '@tauri-apps/api/path'
+// import { readTextFile } from '@tauri-apps/api/fs'
 
-module.exports = {
-  toggleCaret,
-  fetchNewData,
-  loadData,
-  downloadLatexFile,
-  loadCurrentState,
-  saveCurrentState,
-  showSetAuthToken,
-  showSetConnection
-}
-
+const { invoke } = window.__TAURI__.tauri;
+const { readTextFile } = window.__TAURI__.fs.readTextFile;
+const { resolveResource } = window.__TAURI__.path.resolveResource;
 //#region UTILITY
 function showElement(elementID) {
   let element = document.getElementById(elementID);
@@ -31,41 +24,27 @@ function toggleCaret(elementID) {
     anchorCaret.setAttribute('class','fa-solid fa-caret-right');
   }
 }
+function setAttributes(el, attrs) {
+  for(var key in attrs) {
+    el.setAttribute(key, attrs[key]);
+  }
+}
 //#endregion
 
-function loadData() {
+async function loadData() {
   document.getElementById('input-year').value = new Date().getFullYear() - 1;
-
-  document.body.style.cursor = "progress";
-  fetchFromServer(getServerUrl() + '/ping', true).then(data => {
-    if(data.status == 'pong') {
-      setServerStatus(true);
-      fetchFromServer('/api/loadData').then(data => {
-        if(data.data) {
-          createTableBody(data.data);
-          InfoMessageBox(`Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.`);
-        }
-      });
-    } else setServerStatus(false);
-  }).catch(error => {
-    setServerStatus(false);
-  });
+  if (await pingServer()) loadStateFromServer();
 }
 
-function fetchNewData() {
-  if(!getServerStatus()) {
-    InfoMessageBox('Der Server ist nicht erreichbar. Bitte überprüfe die Verbindung.');
-    return;
-  }
+async function fetchNewData() {
   let year = document.getElementById('input-year').value;
-  fetchFromServer('/api/fetchNew?year=' + year).then(data => {
-    if(data.error) {
-      InfoMessageBox(`Beim Abrufen der Daten ist etwas schiefgelaufen: \n BackEnd: ${data.error}`);
-    }else if (data.data){
-      createTableBody(data.data);
-      InfoMessageBox(`` + Object.keys(data.data).length + ` neue Elemente aus dem Jahr ${year} wurden hinzugefügt`);
-    }
-  });
+  const data= await fetchFromServer('/api/fetchNew?year=' + year)
+  if(data.error) {
+    InfoMessageBox(`Beim Abrufen der Daten ist etwas schiefgelaufen.  ${data.error}`);
+  }else if (data.data){
+    createTableBody(data.data);
+    InfoMessageBox(`` + Object.keys(data.data).length + ` neue Elemente aus dem Jahr ${year} wurden hinzugefügt`);
+  }
 }
 
 function createTableBody(data) {
@@ -81,130 +60,80 @@ function createTableBody(data) {
 
 function createDonatorTr(userID, element) {
   let tr = document.createElement('tr');
-  tr.setAttribute('class', 'donator-autocreate-tr');
-  tr.setAttribute('id', `donator-${userID}`);
-  for (let j = 0; j < 12; j++) {
-    let td = document.createElement('td');
-    td.setAttribute('class', `donator-element-${userID}`);
-    switch (j) {
-        case 0:
-          td.setAttribute('class', 'align-center caret donator-element-' + userID);
-          let a = document.createElement('a');
-          a.setAttribute('id', `caret-${userID}`);
-          a.setAttribute('href', '#');
-          a.setAttribute('onclick', `toggleCaret('caret-${userID}')`);
-          a.setAttribute('class', 'fa-solid fa-caret-right');
-          td.appendChild(a);
-          break;
-      case 1: td.appendChild(createDonatorStatus(element)); break;
-      case 2: td.appendChild(createDonatorSpan(element.familyname)); break;
-      case 3: td.appendChild(createDonatorSpan((element.academicTitle == '' ? '' : element.academicTitle + ' ') + element.surename)); break;
-      case 4: td.appendChild(createDonatorAddressSpan(element.address)); break;
-      case 5: td.appendChild(createDonatorSpan(element.donations.length)); break;
-      case 6: td.appendChild(createDonatorSpan(element.formattedSum)); break;
-      case 7: td.appendChild(createDonatorSpan(element.sumInWords)); break;
-      case 8:
-        td.setAttribute('class', 'donator-element-' + userID);
-        let input = document.createElement('input')
-        input.setAttribute('type', 'checkbox');
-        input.setAttribute('id', `checked-${userID}`);
-        input.setAttribute('onclick', `changeStatus(${userID})`);
-        if(element.status == 'checked' || element.status == 'checkedNotInPool' || element.status == 'done') input.setAttribute('checked', 'true');
-        td.appendChild(input);
-        break;
-      case 9: 
-        td.setAttribute('class', 'donator-element-' + userID);
-        let input2 = document.createElement('input')
-        input2.setAttribute('type', 'checkbox');
-        input2.setAttribute('id', `create-${userID}`);
-        input2.setAttribute('onclick', `changeStatus(${userID})`);
-        if(element.status != 'checkedNotInPool') input2.setAttribute('checked', 'true');
-        td.appendChild(input2);
-        break;
-      case 10:
-        td.setAttribute('class', 'donator-element-' + userID);
-        let button = document.createElement('button');
-        button.setAttribute('onclick', `askRefetchDonator(${userID})`);
-        button.appendChild(document.createElement('i')).setAttribute('class', 'fa-solid fa-rotate-right');
-        td.appendChild(button);
-        break;
-      case 11:
-        td.setAttribute('class', 'donator-element-' + userID);
-        let button2 = document.createElement('button');
-        button2.setAttribute('onclick', `askDeleteDonator(${userID})`);
-        button2.appendChild(document.createElement('i')).setAttribute('class', 'fa-solid fa-trash');
-        td.appendChild(button2);
-        break;
-    }
-    tr.appendChild(td);
-  }
+  setAttributes(tr, { class: 'donator-autocreate-tr', id: `donator-${userID}` });
+
+  tr.appendChild(createCaretTD(element.id));
+  tr.appendChild(createDonatorStatusTD(element));
+  tr.appendChild(createTextTD(element.familyname));
+  tr.appendChild(createTextTD((element.academicTitle == '' ? '' : element.academicTitle + ' ') + element.surename));
+  tr.appendChild(createDonatorAddressTD(element.address));
+  tr.appendChild(createTextTD(element.donations.length));
+  tr.appendChild(createTextTD(element.formattedSum));
+  tr.appendChild(createTextTD(element.sumInWords));
+  tr.appendChild(createCheckboxTD({ type: 'checkbox', id: `checked-${userID}`, onclick: `changeStatus(${userID})`}, (element.status == 'checked' || element.status == 'checkedNotInPool' || element.status == 'done')));
+  tr.appendChild(createCheckboxTD({ type: 'checkbox', id: `create-${userID}`, onclick: `changeStatus(${userID})`}, (element.status != 'checkedNotInPool')));
+  tr.appendChild(createButtonTD('fa-solid fa-rotate-right', `askRefetchDonator(${userID})`));
+  tr.appendChild(createButtonTD('fa-solid fa-trash', `askDeleteDonator(${userID})`));
   return tr;
 }
-function createDonatorSpan(donatorElement) {
-  let span = document.createElement('span');
-  span.appendChild(document.createTextNode(donatorElement));
-  return span;
+
+function createTextTD(text) {
+  let td = document.createElement('td');
+  td.appendChild(document.createTextNode(text));
+  return td
 }
-function createDonatorStatus(element) {
+function createCaretTD(userID) {
+  let a = document.createElement('a');
+  setAttributes(a, { id: `caret-${userID}`, onclick: `toggleCaret('caret-${userID}')`, class: 'fa-solid fa-caret-right' })
+  let td = document.createElement('td');
+  td.appendChild(a);
+  return td;
+}
+function createDonatorStatusTD(element) {
   let i = document.createElement('i');
   i.setAttribute('id', 'status-' + element.id);
-  switch (element.status) {
-    case 'unchecked':
-      i.setAttribute('class', 'fa-lg fa-solid fa-triangle-exclamation');
-      i.setAttribute('style', 'color: #FEC63D');
-      break;
-    case 'checked':
-      i.setAttribute('class', 'fa-lg fa-regular fa-circle-check');
-      i.setAttribute('style', 'color: #629C44');
-      break;
-    case 'checkedNotInPool':
-      i.setAttribute('class', 'fa-lg fa-solid fa-circle-check');
-      i.setAttribute('style', 'color: #D6D6D6');
-      break;
-    case 'done':
-      i.setAttribute('class', 'fa-lg fa-solid fa-circle-check');
-      i.setAttribute('style', 'color: #629C44');
-      break;
-    default:
-      i.setAttribute('class', 'fa-lg fa-solid fa-circle-exclamation');
-      i.setAttribute('style', 'color: #FF5D55');
-      break;
-  }
-  return i;
+  setStatusIcon(element.id, element.status, i);
+  td = document.createElement('td');
+  td.appendChild(i);
+  return td;
 }
-function createDonatorAddressSpan(address) {
-  let span = document.createElement('span');
-  let street = address.street ||'';
-  let zip = address.zip || '';
-  let city = address.city || '';
-  let country = address.country || '';
-  span.appendChild(document.createTextNode(street +'\n' + zip + ' ' + city + '\n' + country));
-  span.setAttribute('style', 'white-space: pre-wrap; word-wrap: break-word;');
-  return span;
+function createDonatorAddressTD(address) {
+  let td = document.createElement('td');
+  let text = document.createTextNode((address.street ||'') +'\n' + (address.zip || '') + ' ' + (address.city || '') + '\n' + (address.country || ''))
+  td.setAttribute('style', 'white-space: pre-wrap; word-wrap: break-word;');
+  td.appendChild(text);
+  return td;
+}
+function createButtonTD(icon, buttonAction) {
+  let button = document.createElement('button');
+  button.setAttribute('onclick', buttonAction);
+  button.setAttribute('class', icon);
+  let td = document.createElement('td');
+  td.appendChild(button);
+  return td;
+}
+function createCheckboxTD(options, checked = false) {
+  let input = document.createElement('input');
+  if(checked) options.checked = 'true';
+  setAttributes(input, options);
+  let td = document.createElement('td');
+  td.appendChild(input);
+  return td;
 }
 
-function changeStatus(userID) {
-  let icon = document.getElementById('status-' + userID);
-  let checked = document.getElementById('checked-' + userID).checked;
-  let create = document.getElementById('create-' + userID).checked;
-  let status = 'unchecked';
-  if(checked && !create) { // checkedNotInPool
-    icon.setAttribute('class', 'fa-lg fa-solid fa-circle-check');
-    icon.setAttribute('style', 'color: #D6D6D6');
-    status = 'checkedNotInPool';
-  } else if(checked) {  // checked
-    icon.setAttribute('class', 'fa-lg fa-regular fa-circle-check');
-    icon.setAttribute('style', 'color: #629C44');
-    status = 'checked';
-  } else if(!checked) { // unchecked
-    icon.setAttribute('class', 'fa-lg fa-solid fa-triangle-exclamation');
-    icon.setAttribute('style', 'color: #FEC63D');
-    status = 'unchecked';
-  }  
-  fetchFromServer('/api/moveDonator?donatorID=' + userID + '&status=' + status).then(data => {
-    if(!data.data == 200) InfoMessageBox(`Beim Ändern des Status ist etwas schiefgelaufen: \n BackEnd: ${data}`);
-  });
+function setStatusIcon(userID, status, icon = undefined) {
+  let i = icon || document.getElementById('status-' + userID);
+  let options = {}
+  switch (status) {
+    case 'unchecked': options = { class: 'fa-lg fa-solid fa-triangle-exclamation', style: 'color: #FEC63D' }; break;
+    case 'checked': options = { class: 'fa-lg fa-regular fa-circle-check', style: 'color: #629C44' }; break;
+    case 'checkedNotInPool': options = { class: 'fa-lg fa-solid fa-circle-check', style: 'color: #D6D6D6' }; break;
+    case 'done': options = { class: 'fa-lg fa-solid fa-circle-check', style: 'color: #629C44' }; break;
+    default: options = { class: 'fa-lg fa-solid fa-circle-exclamation', style: 'color: #FF5D55' }; break;
+  }
+  setAttributes(i, options);
 }
+
 /**
  * Create Table with all Donations Listed in SevDesk to the User above
  * @param  {Array<Array<string>} donations
@@ -213,133 +142,116 @@ function changeStatus(userID) {
  * Number of associated User in Table
  */
 function createDonationTable(donations, userID) {
-  //CREATE SPACE FOR DONATION TABLE in DONATOR-TABLE
   let outerTr = document.createElement('tr');
-  let outerTd = document.createElement('td');
-  outerTr.setAttribute('class', 'donation-autocreate-tr');
-  outerTr.setAttribute('id', `donation-tr-${userID}`);
+  setAttributes(outerTr, { class: 'donation-autocreate-tr', id: `donation-tr-${userID}` });
   outerTr.appendChild(document.createElement('td'));
-  outerTd.setAttribute('colspan', 9);
-  
-  //CREATE DONATION-TABLE-HEAD
-  let innerTbl = document.createElement('table');
-  innerTbl.setAttribute('id', `donation-${userID}`);
-  innerTbl.setAttribute('class', 'donation-table');
-  let innerTrHead = document.createElement('tr');
-  
-  let innerHeadInfo = ['Datum', 'Summe'];
-  for (let i = 0; i < innerHeadInfo.length; i++) {
-    let innerTh = document.createElement('th');
-    innerTh.appendChild(document.createTextNode(innerHeadInfo[i]));
-    innerTrHead.appendChild(innerTh);
-  }
-  
-  //CREATE DONATION-TABLE-BODY (FOR EACH DONATION in 'donations')
-  innerTbl.appendChild(innerTrHead);
-  for (const key in donations) {
-    const element = donations[key];
-    let innerTr = document.createElement('tr');
-    
-    innerTr.appendChild(createDonationTd(element.date));
-    innerTr.appendChild(createDonationTd(element.sum));
-    innerTbl.appendChild(innerTr);
-  }
-  //#endregion
 
-  innerTbl.style.display = 'none'
+  let outerTd = document.createElement('td');
+  outerTd.setAttribute('colspan', 11);
+
+  let innerTbl = document.createElement('table');
+  setAttributes(innerTbl, { id: `donation-${userID}`, class: 'donation-table', style: 'display: none' });
+
+  let innerTrHead = document.createElement('tr');
+  ['Datum', 'Summe'].forEach(text => {
+    let th = document.createElement('th');
+    th.appendChild(document.createTextNode(text));
+    innerTrHead.appendChild(th);
+  });
+  innerTbl.appendChild(innerTrHead);
+
+  donations.forEach(donation => {
+    let innerTr = document.createElement('tr');
+    innerTr.appendChild(createTextTD(donation.date));
+    innerTr.appendChild(createTextTD(donation.sum));
+    innerTbl.appendChild(innerTr);
+  });
   outerTd.appendChild(innerTbl);
   outerTr.appendChild(outerTd);
   return outerTr;
 }
-function createDonationTd(donationElement) {
-  let innerTd = document.createElement('td');
-  innerTd.appendChild(document.createTextNode(donationElement));
-  return innerTd
+
+async function saveCurrentState() {
+  const data= await fetchFromServer('/api/saveData');
+  if(data.status == 201) InfoMessageBox(`Aktueller Status wurde erfolgreich gespeichert!`);
+  else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen. ${data}`);
 }
 
-function saveCurrentState() {
-  document.body.style.cursor = "progress";
-  fetchFromServer('/api/saveData').then(data => {
-    if(data.status == 201) InfoMessageBox(`Aktueller Status wurde erfolgreich gespeichert!`);
-    else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}`);
-  });
+async function setAuthToken(token) {
+  const data= await fetchFromServer('/api/saveToken?token=' + token)
+  if(data.status == 200) InfoMessageBox('Das Token wurde gespeichert!');
+  else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen. ${data}`);
 }
 
-function setAuthToken(token) {
-  document.body.style.cursor = "progress";
-  fetchFromServer('/api/saveToken?token=' + token).then(data => {
-    if(data.status == 200) InfoMessageBox('Das Token wurde gespeichert!');
-    else InfoMessageBox(`Beim Speichern ist etwas schiefgelaufen: \n BackEnd: ${data}`);
-  });
+async function setConnection(url) {
+  if(await pingServer(url)){
+    document.getElementById('server-connection').innerHTML = url;
+    InfoMessageBox('Die Verbindung wurde erfolgreich gespeichert!');
+  }
+}
+async function changeStatus(userID) {
+  let checked = document.getElementById('checked-' + userID).checked;
+  let create = document.getElementById('create-' + userID).checked;
+
+  let status = 'unchecked';
+  if(checked && !create) status = 'checkedNotInPool';
+  else if(checked)  status = 'checked';
+
+  const data= await fetchFromServer('/api/moveDonator?donatorID=' + userID + '&status=' + status)
+  if(!data.data) InfoMessageBox(`Beim Ändern des Status ist etwas schiefgelaufen.  ${data}`);
+  else setStatusIcon(userID, data.data[userID].status);
 }
 
-function setConnection(url) {
-  fetchFromServer(url + '/ping', true).then(data => {
-    if(data.status == 'pong') {
-      console.log('Connection set to: ' + url);
-      document.getElementById('server-connection').innerHTML = url;
-      InfoMessageBox('Die Verbindung wurde erfolgreich gespeichert!');
-      setServerStatus(true);
-    }
-  }).catch(error => {
-    InfoMessageBox(`Beim Verbindungsaufbau zum Server ist etwas schiefgelaufen: \n BackEnd: ${error}`);
-    setServerStatus(false);
-  });
+async function refetchDonator(userID) {
+  const data= await fetchFromServer('/api/getDonator?donatorID=' + userID)
+  if(data.data) {
+    document.getElementById(`donator-${userID}`).replaceWith(createDonatorTr(userID, data.data[userID]));
+    document.getElementById(`donation-tr-${userID}`).replaceWith(createDonationTable(data.data[userID].donations, userID));
+    InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde aktualisiert`);
+  }
 }
 
-function refetchDonator(userID) {
-  console.log('refetching: ' + userID);
-  fetchFromServer('/api/getDonator?donatorID=' + userID).then(data => {
-    if(data.data) {
-      document.getElementById(`donator-${userID}`).replaceWith(createDonatorTr(userID, data.data[userID]));
-      document.getElementById(`donation-tr-${userID}`).replaceWith(createDonationTable(data.data[userID].donations, userID));
-      InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde aktualisiert`);
-    }
-  });
+async function deleteDonator(userID) {
+  const data = await fetchFromServer('/api/getDonator?donatorID=' + userID)
+  if(data.data) {
+    document.getElementById(`donator-${userID}`).remove();
+    document.getElementById(`donation-tr-${userID}`).remove();
+    InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde gelöscht`);
+  }
 }
 
-function deleteDonator(userID) {
-  console.log('deleting: ' + userID);
-  fetchFromServer('/api/getDonator?donatorID=' + userID).then(data => {
-    if(data.data) {
-      document.getElementById(`donator-${userID}`).remove();
-      document.getElementById(`donation-tr-${userID}`).remove();
-      InfoMessageBox(`Der Spender ${data.data.familyname} ${data.data.surename} wurde gelöscht`);
-    }
-  });
+async function downloadLatexFile() {
+  if(fetchFromServer('/api/createLatex').status == 201) {
+    try {
+      const response = await fetch(await getServerUrl() + '/api/getLatex');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bescheinigungen.tex';
+      a.click();
+    } catch (error) { InfoMessageBox(`Beim Download ist etwas schiefgelaufen! ${error}`); }
+  }
 }
 
-function downloadLatexFile() {
-  fetchFromServer('/api/createLatex').then(data => {
-    if(data.status == 201) {
-      console.log('downloading tex file');
-      document.body.style.cursor = "progress";
-      fetch(getServerUrl() + '/api/getLatex').then(response => {
-        return response.blob();
-      }).then(blob => {
-          const url = window.URL.createObjectURL(new Blob([blob]));
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'bescheinigungen.tex';
-          a.click();
-      });
-    }
-  })
-}
-function fetchSavedState() {
-  console.log('fetching last saved state');
-  fetchFromServer('/api/loadDataFromFile').then(data => {
+async function loadStateFromServer(loadFromFile = false) {
+  try {
+    const data = await fetchFromServer(loadFromFile ? '/api/loadDataFromFile' : '/api/loadData')
     if(data.data) {
       createTableBody(data.data);
-      setInfoContainer(data);
       InfoMessageBox(`Der Stand der Daten vom Jahr ${data.year} wurde wiederhergestellt.`);
     }
-  }).catch(error => {
-    InfoMessageBox(`Beim Laden ist etwas schiefgelaufen: \n BackEnd: ${error}`);
-    document.body.style.cursor = "default";
-  });
+  } catch(error) { InfoMessageBox(`Beim Laden ist etwas schiefgelaufen! ${error}`);}
 }
 
+function setInfoContainer(data) {
+  document.getElementById('input-all-donations').value = data.additionalInfo.totalDonationSum;
+  document.getElementById('input-all-donators').value = data.additionalInfo.totalDonators;
+  document.getElementById('input-checked').value = data.additionalInfo.checkedDonators;
+  document.getElementById('input-checkedNotInPool').value = data.additionalInfo.checkedDonatorsNIP;
+}
+
+//#region SERVER ROOT-FUNCTIONS
 function setServerStatus(running) {
   if(running) {
     document.getElementById('server-status-boolean').innerHTML = 1;
@@ -351,33 +263,49 @@ function setServerStatus(running) {
     document.getElementById('server-indicator').setAttribute('style', 'color: #FF5D55');
   }
 }
+
 function getServerStatus() {
   return document.getElementById('server-status-boolean').innerHTML == 1;
 }
-function getServerUrl() {
+
+async function getServerUrl() {
+  // const resourcePath = await resolveResource('config.json');
+  // console.log(await resourcePath);
+  // const config = JSON.parse(await readTextFile(resourcePath));
+  // console.log(config.serverUrl);
+  // return config.serverUrl;
   return document.getElementById('server-connection').innerHTML;
-}
-function setInfoContainer(data) {
-  document.getElementById('input-all-donations').value = data.additionalInfo.totalDonationSum;
-  document.getElementById('input-all-donators').value = data.additionalInfo.totalDonators;
-  document.getElementById('input-checked').value = data.additionalInfo.checkedDonators;
-  document.getElementById('input-checkedNotInPool').value = data.additionalInfo.checkedDonatorsNIP;
 }
 
 async function fetchFromServer(queryUrl, checkServer = false) {
+  let url = checkServer ? queryUrl : await getServerUrl() +  queryUrl;
   if(!getServerStatus() && !checkServer) {
-    InfoMessageBox('Der Server ist nicht erreichbar. Bitte überprüfe die Verbindung.');
+    InfoMessageBox(`Der Server ist an ${url} nicht erreichbar. Bitte überprüfe die Verbindung.`);
     throw new Error('Server not reachable');
   }
   document.body.style.cursor = "progress";
-  let url = checkServer ? queryUrl : getServerUrl() +  queryUrl;
-  console.log('fetching: ' + url);
   let response = await fetch(url);
-  let data = await response.json();
+  const data= await response.json();
   if(data.additionalInfo) setInfoContainer(data);
   document.body.style.cursor = "default";
   return data;
 }
+
+async function pingServer(baseUrL = undefined) {
+  try {
+    let url = (baseUrL || await getServerUrl()) + '/ping';
+    const data= await fetchFromServer(url, true);
+    let success = data.status == 'pong'
+    setServerStatus(success);
+    return success;
+    }
+  catch(error) {
+    setServerStatus(false);
+    InfoMessageBox(`Beim Verbindungsaufbau zum Server mit Adresse ${baseUrL || await getServerUrl()} ist etwas schiefgelaufen! ${error}`);
+    return false;
+  };
+}
+//#endregion
 
 //#region MESSAGES
 function showMessage (message) {
@@ -413,8 +341,7 @@ function InputMessageBox(question, placeholderText, buttonText, buttonAction) {
   button.setAttribute('onclick', buttonAction.replace(')','') + 'document.getElementById("status-input").value' + ')');
   button.appendChild(document.createTextNode(buttonText));
   let input = document.createElement('input');
-  input.setAttribute('id', 'status-input');
-  input.setAttribute('placeholder', placeholderText);
+  setAttributes(input, { type: 'text', class: 'input', id: 'status-input', placeholder: placeholderText });
   let p = document.createElement('p');
   p.appendChild(document.createTextNode(question))
   message.appendChild(p);
@@ -422,20 +349,25 @@ function InputMessageBox(question, placeholderText, buttonText, buttonAction) {
   message.appendChild(button);
   showMessage(message.innerHTML);
 }
+
 function askRefetchDonator(userID) {
-  
   YesNoMessageBox('Soll der Spender wirklich neu von SevDesk abgefragt und der aktuelle Stand überschrieben werden?', 'refetchDonator(' + userID + ')');
 }
 function askDeleteDonator(userID) {
   YesNoMessageBox('Soll der Spender wirklich gelöscht werden werden?', 'deleteDonator(' + userID + ')');
 }
-function loadCurrentState() {
-  YesNoMessageBox('Soll der aktuelle Stand wirklich mit dem zuletzt gespeicherten Stand überschrieben werden?', 'fetchSavedState()');
+function askLoadSavedState() {
+  YesNoMessageBox('Soll der aktuelle Stand wirklich mit dem zuletzt gespeicherten Stand überschrieben werden?', 'loadStateFromServer(true)');
 }
 function showSetAuthToken(){
   InputMessageBox('Hier den API-Schlüssel aus SevDesk einfügen:', 'API-Schlüssel eingeben', 'Schlüssel speichern', 'setAuthToken()');
 }
 function showSetConnection() {
   InputMessageBox('Hier die Server-URL (z.b. http://raspberry:8040 oder http://192.168.1.20:8040) eingeben. (Standardmäßig http://raspberry:8040, sodass es direkt funktionieren sollte.)', 'Server-URL eingeben', 'Verbindung speichern', 'setConnection()');
+}
+function askfetchNewData() {
+  if(document.getElementById('autocreate-table-body').textContent != '') {
+    YesNoMessageBox('Soll wirklich eine neue Abfrage gestartet werden? Alle bisherigen Änderungen gehen verloren.', 'fetchNewData()');
+  } else fetchNewData();
 }
 //#endregion

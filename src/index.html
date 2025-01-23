@@ -5,35 +5,38 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <script type="module" src="/main.js" defer></script>
+    <script type="module" src="main.js" defer></script>
     <script src="https://kit.fontawesome.com/97ecc9f9f9.js" crossorigin="anonymous"></script>
-    <title>SevDesk - Generierte Spendenbescheinigungen</title>
-</head>
-<body onload="loadData()">    
-    <!--NAVBAR / HEAD-->
+<body onload="loadData()"> 
     <div class="head">
         <nav data-tauri-drag-region class="navbar" id="head">
             <ul class="nav-list" id="ul-home">
-                <!-- <li class="nav-item" id="titlebar-home"><a href="#" onclick="setStartStatus()"><i class="fa-solid fa-house"></i></a></li> -->
                 <li class="nav-item" id="titlebar-help"><a><i class="fa-solid fa-question"></i>Hilfe</a></li>
                 <li class="nav-item" id="titlebar-settings">
-                    <a><i class="fa-solid fa-gear"></i> Einstellungen</a>
+                    <a><i class="fa-solid fa-gear"></i>Einstellungen</a>
                     <ul class="dropdown-list">
-                        <li><a onclick="showSetAuthToken()"><i class="fa-solid fa-key"></i> Authorisierungs-Token</a></li>
-                        <li><a onclick="showSetConnection()"> <i class="fa-solid fa-network-wired"></i> Server-verbindung</a></li>
+                        <li><a onclick="showSetAuthToken()"><i class="fa-solid fa-key"></i>Authorisierungs-Token</a></li>
+                        <li><a onclick="showSetConnection()"> <i class="fa-solid fa-network-wired"></i>Server-Verbindung</a></li>
                         <!-- <li><a href="#"><i class="fa-solid fa-file"></i> Standard .tex Vorlage</a></li> -->
                     </ul> 
                 </li>  
                 <li class="nav-item" id="titlebar-save"><a onclick="saveCurrentState()"><i class="fa-solid fa-floppy-disk"></i>Speichern</a></li>
-                <li class="nav-item" id="titlebar-load"><a onclick="loadCurrentState()"><i class="fa-solid fa-folder-open"></i>Laden</a></li>
+                <li class="nav-item" id="titlebar-load">
+                    <a onclick="loadStateFromServer()"><i class="fa-solid fa-folder-open"></i>Laden</a>
+                    <ul class="dropdown-list">
+                        <li><a onclick="loadStateFromServer()"> <i class="fa-solid fa-database"></i>aktueller Serverstand</a></li>
+                        <li><a onclick="askLoadSavedState()"><i class="fa-solid fa-file"></i>letzter Speicherstand</a></li>
+                    </ul> 
+                </li>
                 <li class="nav-item" id="server-status"><i id="server-indicator" class="fa-solid fa-power-off"></i><p id="server-text">Server nicht erreichbar</p></li> 
             </ul>
         </nav>
     </div>
+
     <div class="body-wrapper">
         <div class="container"id="status-container" style="display: none;">
-                <div id="status-content"></div>
-                <a href="#" onclick="hideElement('status-container')" id="close-status"><i class="fa-solid fa-x"></i></a>
+            <div id="status-content"></div>
+            <a href="#" onclick="hideElement('status-container')" id="close-status"><i class="fa-solid fa-x"></i></a>
         </div>
         <div class="container" id="info-container">
             <div class ="info-content" id="info-year">
@@ -65,12 +68,10 @@
                 <tr>
                     <th><span>Mehr</span></th>
                     <th><span>Status</span></th>
-
                     <th><span>Nachname</span></th>
                     <th><span>Vorname(n)</span></th>
                     <th><span>Adresse</span></th>
                     <th><span>Anzahl</span> <span>Spenden</span></th>
-
                     <th><span>Summe</span></th>
                     <th><span>In Worten</span></th>
                     <th><span>Geprüft</span></th>
@@ -83,19 +84,19 @@
             </tbody>
         </table>
         <div class="button-wrapper">
-            <button onclick="fetchNewData()">Daten neu abfragen</button>
+            <button onclick="askfetchNewData()">Daten neu abfragen</button>
             <button id="move-button" class="table-button" onclick="downloadLatexFile()">Bescheinigungen erstellen</button>
-
         </div>
     </div>
     <footer>
-        <p>Anwendung entwickelt von Josia Scheerle. Bei Fragen oder Problemen gerne an <a id="link-mail" href="mailto:coding@scheerlestudios.de">coding@scheerlestudios.de</a> oder Tel.: +49 176 56927561</p>
+        <p>Anwendung entwickelt von Josia Scheerle. Bei Fragen oder Problemen gerne an <a id="link-mail" href="mailto:coding@scheerlestudios.de">coding@scheerlestudios.de</a></p>
     </footer>
 </body>
 
 <script src="main.js">
     loadData();
 </script>
-<p style="display: none;" id="server-connection">http://raspberry:8040</p>
+
+<p style="display: none;" id="server-connection">http://localhost:8040</p>
 <p style="display: none;" id="server-status-boolean">0</p>
 </html>
