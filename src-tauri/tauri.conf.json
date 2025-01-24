@@ -2,51 +2,29 @@
   "build": {
     "beforeDevCommand": "",
     "beforeBuildCommand": "",
-    "devPath": "../src",
-    "distDir": "../src",
-    "withGlobalTauri": true
+    "frontendDist": "../src"
   },
-  "package": {
-    "productName": "SevDeskExtension-Client",
-    "version": "1.1.1"
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "resources": [
+      "config.json"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
   },
-  "tauri": {
-    "allowlist": {
-      "notification": {
-        "all": true
-      },
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      },
-      "window": {
-        "all": true
-      },
-      "fs": {
-        "all": true,
-        "scope": ["$RESOURCE/*"]
-      },
-      "path": {
-        "all": true
-      }
-    },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.tauri.sevDeskExtension.Client",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "resources": [ "config.json"]
-    },
-    "security": {
-      "csp": null
-    },
+  "productName": "SevDeskExtension-Client",
+  "mainBinaryName": "SevDeskExtension-Client",
+  "version": "1.1.1",
+  "identifier": "com.tauri.sevDeskExtension.Client",
+  "plugins": {},
+  "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "fullscreen": false,
@@ -54,8 +32,12 @@
         "title": "SevDeskExtension-Client",
         "width": 1400,
         "height": 800,
-        "decorations": true
+        "decorations": true,
+        "useHttpsScheme": true //Check if this is the problem
       }
-    ]
+    ],
+    "security": {
+      "csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
+}
   }
 }

@@ -1,9 +1,6 @@
-// import { resolveResource } from '@tauri-apps/api/path'
-// import { readTextFile } from '@tauri-apps/api/fs'
+const path = window.__TAURI__.path;
+const { readFile, writeFile } = window.__TAURI__.fs;
 
-const { invoke } = window.__TAURI__.tauri;
-const { readTextFile } = window.__TAURI__.fs.readTextFile;
-const { resolveResource } = window.__TAURI__.path.resolveResource;
 //#region UTILITY
 function showElement(elementID) {
   let element = document.getElementById(elementID);
@@ -32,7 +29,6 @@ function setAttributes(el, attrs) {
 //#endregion
 
 async function loadData() {
-  document.getElementById('input-year').value = new Date().getFullYear() - 1;
   if (await pingServer()) loadStateFromServer();
 }
 
@@ -185,7 +181,11 @@ async function setAuthToken(token) {
 
 async function setConnection(url) {
   if(await pingServer(url)){
-    document.getElementById('server-connection').innerHTML = url;
+    console.log('server reachable at ' + url);
+    let filepath = await path.join(await path.resourceDir(), 'config.json');
+    let config = { serverUrl: url };
+    await writeFile(filepath, new TextEncoder().encode(JSON.stringify(config)));
+
     InfoMessageBox('Die Verbindung wurde erfolgreich gespeichert!');
   }
 }
@@ -245,6 +245,7 @@ async function loadStateFromServer(loadFromFile = false) {
 }
 
 function setInfoContainer(data) {
+  if(document.getElementById('input-year').value == '') document.getElementById('input-year').value = data.year;
   document.getElementById('input-all-donations').value = data.additionalInfo.totalDonationSum;
   document.getElementById('input-all-donators').value = data.additionalInfo.totalDonators;
   document.getElementById('input-checked').value = data.additionalInfo.checkedDonators;
@@ -269,12 +270,9 @@ function getServerStatus() {
 }
 
 async function getServerUrl() {
-  // const resourcePath = await resolveResource('config.json');
-  // console.log(await resourcePath);
-  // const config = JSON.parse(await readTextFile(resourcePath));
-  // console.log(config.serverUrl);
-  // return config.serverUrl;
-  return document.getElementById('server-connection').innerHTML;
+  let filepath = await path.join(await path.resourceDir(), 'config.json');
+  const config = JSON.parse(new TextDecoder().decode(await readFile(filepath)));
+  return config.serverUrl;
 }
 
 async function fetchFromServer(queryUrl, checkServer = false) {
